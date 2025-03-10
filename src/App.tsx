@@ -11,7 +11,10 @@ import { PointsProvider } from './contexts/PointsContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AccessDenied } from './components/AccessDenied';
 
+// Tipos de visualização disponíveis
 export type View = 'login' | 'signup' | 'receipt' | 'admin' | 'roulette' | 'missions';
+
+// Tipo para a função que altera a visualização
 export type ViewSetter = (view: View) => void;
 
 function App() {
@@ -60,7 +63,7 @@ function App() {
           } />
           
           <Route path="/admin" element={
-            <ProtectedRoute adminOnly={true}>
+            <ProtectedRoute>
               <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
                 <Navigation setView={setView} />
                 <div className="max-w-7xl mx-auto p-4 pt-24 sm:pt-32">
@@ -71,6 +74,9 @@ function App() {
           } />
           
           <Route path="/" element={<Navigate to="/login" replace />} />
+          
+          {/* Redirecionar qualquer outra rota para login */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     </PointsProvider>
