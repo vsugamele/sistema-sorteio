@@ -10,8 +10,8 @@ interface PromoMessageProps {
 export function PromoMessage({ setView }: PromoMessageProps) {
   const [showModal, setShowModal] = React.useState(false);
   const [showVideo, setShowVideo] = React.useState(false);
-  // URL base para recursos estáticos
-  const baseUrl = import.meta.env.PROD ? 'https://vsugamele.github.io/sistema-sorteio' : '';
+  // URL da imagem de capa do vídeo
+  const thumbnailUrl = "https://i.imgur.com/FUy7oGF.jpg";
 
   const toggleVideo = () => {
     setShowVideo(!showVideo);
@@ -85,7 +85,7 @@ export function PromoMessage({ setView }: PromoMessageProps) {
             onClick={toggleVideo}
           >
             <img 
-              src={`${baseUrl}/images/video-thumbnail.jpg?v=2`}
+              src={thumbnailUrl}
               alt="Capa do vídeo tutorial" 
               className="absolute inset-0 w-full h-full object-cover"
             />
