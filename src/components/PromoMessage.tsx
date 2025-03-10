@@ -79,12 +79,21 @@ export function PromoMessage({ setView }: PromoMessageProps) {
           </div>
         ) : (
           <div 
-            className="relative aspect-video bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+            className="relative aspect-video rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
             onClick={toggleVideo}
           >
-            <div className="text-white text-center">
-              <Play className="w-16 h-16 mx-auto mb-2" />
-              <p className="font-medium">Clique para assistir o tutorial</p>
+            <img 
+              src="/images/video-thumbnail.jpg" 
+              alt="Capa do vídeo tutorial" 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-black/30 hover:bg-black/40 transition-colors flex items-center justify-center">
+              <div className="text-white text-center">
+                <div className="bg-pink-600/80 rounded-full p-4 mb-3 backdrop-blur-sm">
+                  <Play className="w-12 h-12 mx-auto" />
+                </div>
+                <p className="font-medium text-xl drop-shadow-md">Clique para assistir o tutorial</p>
+              </div>
             </div>
           </div>
         )}
