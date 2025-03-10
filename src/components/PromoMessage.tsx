@@ -83,7 +83,7 @@ export function PromoMessage({ setView }: PromoMessageProps) {
             onClick={toggleVideo}
           >
             <img 
-              src="/images/video-thumbnail.jpg" 
+              src="/images/video-thumbnail.jpg?v=1" 
               alt="Capa do vídeo tutorial" 
               className="absolute inset-0 w-full h-full object-cover"
             />
