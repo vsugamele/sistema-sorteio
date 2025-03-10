@@ -1,6 +1,6 @@
 import React from 'react';
-import { Sparkles, Gift, Star, Trophy, Upload, Target, X, Play, Pause } from 'lucide-react';
-import { View, ViewSetter } from '../App';
+import { Sparkles, Gift, Star, Trophy, Upload, Target, X, Play } from 'lucide-react';
+import { ViewSetter } from '../App';
 import { ReceiptUpload } from './ReceiptUpload';
 
 interface PromoMessageProps {
@@ -10,22 +10,9 @@ interface PromoMessageProps {
 export function PromoMessage({ setView }: PromoMessageProps) {
   const [showModal, setShowModal] = React.useState(false);
   const [showVideo, setShowVideo] = React.useState(false);
-  const [isPlaying, setIsPlaying] = React.useState(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   const toggleVideo = () => {
     setShowVideo(!showVideo);
-  };
-
-  const togglePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
   };
 
   return (
@@ -74,26 +61,20 @@ export function PromoMessage({ setView }: PromoMessageProps) {
         
         {showVideo ? (
           <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-            <video 
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              controls={false}
-              poster="/video-placeholder.jpg"
-              onEnded={() => setIsPlaying(false)}
-            >
-              <source src="/video.mp4" type="video/mp4" />
-              Seu navegador não suporta vídeos HTML5.
-            </video>
+            <iframe 
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/4dK2i5wgYHQ?autoplay=1"
+              title="Tutorial do Sistema"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
             
             <button 
-              onClick={togglePlayPause}
-              className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
+              onClick={toggleVideo}
+              className="absolute top-3 right-3 bg-black/50 hover:bg-black/70 rounded-full p-1 transition-colors"
             >
-              {isPlaying ? (
-                <Pause className="w-16 h-16 text-white opacity-80 hover:opacity-100 transition-opacity" />
-              ) : (
-                <Play className="w-16 h-16 text-white opacity-80 hover:opacity-100 transition-opacity" />
-              )}
+              <X className="w-6 h-6 text-white" />
             </button>
           </div>
         ) : (
@@ -103,7 +84,7 @@ export function PromoMessage({ setView }: PromoMessageProps) {
           >
             <div className="text-white text-center">
               <Play className="w-16 h-16 mx-auto mb-2" />
-              <p className="font-medium">Clique para assistir o vídeo</p>
+              <p className="font-medium">Clique para assistir o tutorial</p>
             </div>
           </div>
         )}

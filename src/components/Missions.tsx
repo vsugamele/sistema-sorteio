@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Target, Gift, Clock, CheckCircle, AlertCircle, Loader2, Plus, Image as ImageIcon, Instagram, MessageCircle, Coins, UserPlus, Share2, Send, Users, Video, AtSign, Gamepad2, DollarSign, ExternalLink, X, Upload } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Gift, AlertCircle, Loader2, Plus, Image as ImageIcon, Instagram, Coins, Send, Users, Video, AtSign, Gamepad2, DollarSign, ExternalLink, X, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
 import { ViewSetter } from '../App';
@@ -121,7 +121,7 @@ export function Missions({ setView }: MissionsProps) {
       const filePath = `mission-proofs/${fileName}`;
 
       // Upload file
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('receipts')
         .upload(filePath, file);
 
@@ -348,7 +348,8 @@ export function Missions({ setView }: MissionsProps) {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Versão para desktop */}
+        <div className="overflow-x-auto hidden sm:block">
           <table className="w-full">
             <thead className="bg-gray-50 dark:bg-gray-900/50">
               <tr>
@@ -361,10 +362,7 @@ export function Missions({ setView }: MissionsProps) {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
-                  Link
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider hidden sm:table-cell">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Comprovante
                 </th>
               </tr>
@@ -397,13 +395,10 @@ export function Missions({ setView }: MissionsProps) {
                         </div>
                         <div className="font-medium text-gray-900 dark:text-white">
                           {mission.title}
-                          <div className="text-sm text-gray-500 dark:text-gray-400 sm:hidden">
-                            {mission.points_reward} {mission.points_reward === 1 ? 'ponto' : 'pontos'}
-                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {mission.points_reward} {mission.points_reward === 1 ? 'ponto' : 'pontos'}
                       </div>
@@ -411,21 +406,7 @@ export function Missions({ setView }: MissionsProps) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {userMission ? getStatusBadge(userMission.status) : getStatusBadge('pending')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                      {mission.link && (
-                        <a
-                          onClick={(e) => e.stopPropagation()}
-                          href={mission.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1 min-w-[100px] py-2 px-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          <span className="text-sm">Acessar</span>
-                        </a>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
+                    <td className="px-6 py-4 whitespace-nowrap">
                         {userMission?.proof_url && (
                           <a
                             onClick={(e) => e.stopPropagation()}
@@ -461,6 +442,100 @@ export function Missions({ setView }: MissionsProps) {
               })}
             </tbody>
           </table>
+        </div>
+
+        {/* Versão para mobile */}
+        <div className="sm:hidden">
+          <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            {missions.map((mission) => {
+              const userMission = userMissions[mission.id];
+              
+              return (
+                <div 
+                  key={mission.id} 
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                  onClick={() => {
+                    setSelectedMission(mission);
+                    setShowProofModal(true);
+                  }}
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="relative p-2 rounded-lg overflow-hidden group flex-shrink-0 mt-1">
+                      <div className="absolute inset-0 bg-gradient-to-br from-gray-100/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80 backdrop-blur-[2px] group-hover:from-blue-50 group-hover:to-indigo-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-indigo-900/30 transition-all duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-tl from-transparent via-white/20 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100 animate-gradient-x transition-opacity duration-700" />
+                      <div className="absolute inset-0 shadow-inner rounded-lg" />
+                      <div className="relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+                        {mission.type === 'deposit' ? (
+                          <Coins className="w-6 h-6 text-green-500 dark:text-green-400 filter drop-shadow-md" />
+                        ) : (
+                          getMissionIcon(mission.type, mission.title)
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 dark:text-white mb-1">
+                        {mission.title}
+                      </div>
+                      <div className="flex flex-wrap gap-2 items-center">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
+                          {mission.points_reward} {mission.points_reward === 1 ? 'ponto' : 'pontos'}
+                        </div>
+                        <div>
+                          {userMission ? getStatusBadge(userMission.status) : getStatusBadge('pending')}
+                        </div>
+                      </div>
+                      {mission.link && (
+                        <a
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            window.open(mission.link, '_blank', 'noopener,noreferrer');
+                          }}
+                          href={mission.link}
+                          className="text-sm text-blue-500 dark:text-blue-400 hover:underline flex items-center gap-1 mt-2"
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Acessar Link
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2 mt-3">
+                    {userMission?.proof_url && (
+                      <a
+                        onClick={(e) => e.stopPropagation()}
+                        href={userMission.proof_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 py-2 px-3 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                      >
+                        <ImageIcon className="w-4 h-4" />
+                        <span className="text-sm">Ver Prova</span>
+                      </a>
+                    )}
+                    {(!userMission || userMission.status === 'rejected') && (
+                      <label className="cursor-pointer flex-1">
+                        <div className="w-full py-2 px-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                          {uploading === mission.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span className="text-sm">Enviando...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="w-4 h-4" />
+                              <span className="text-sm">Enviar Prova</span>
+                            </>
+                          )}
+                        </div>
+                      </label>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       
