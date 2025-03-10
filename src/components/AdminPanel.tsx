@@ -478,6 +478,10 @@ function AdminPanel({ setView }: AdminPanelProps) {
     }
   };
 
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
   const handleAddAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminError(null);
@@ -555,6 +559,131 @@ function AdminPanel({ setView }: AdminPanelProps) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const exportDepositsToCSV = () => {
+    try {
+      // Definir cabeçalhos do CSV
+      const headers = ['ID', 'Usuário', 'Nome', 'Valor (R$)', 'Pontos', 'Status', 'Data de Envio', 'URL do Comprovante'];
+      
+      // Filtrar os depósitos com base na pesquisa atual
+      const filteredDeposits = deposits.filter(deposit => {
+        const searchLower = searchTerm.deposits.toLowerCase();
+        if (!searchLower) return true;
+        
+        const userName = deposit.users?.raw_user_meta_data?.name || '';
+        if (userName.toLowerCase().includes(searchLower)) return true;
+        
+        const status = deposit.status || '';
+        if (status.toLowerCase().includes(searchLower)) return true;
+        
+        return false;
+      });
+      
+      // Mapear os dados dos depósitos para o formato CSV
+      const csvData = filteredDeposits.map(deposit => {
+        return [
+          deposit.id,
+          deposit.user_id,
+          deposit.users?.raw_user_meta_data?.name || 'N/A',
+          deposit.amount.toFixed(2),
+          deposit.points_reward || 0,
+          deposit.status === 'approved' ? 'Aprovado' : deposit.status === 'rejected' ? 'Rejeitado' : 'Pendente',
+          new Date(deposit.created_at).toLocaleDateString('pt-BR'),
+          deposit.receipt_url || 'N/A'
+        ].map(value => `"${value}"`).join(',');
+      });
+      
+      // Juntar cabeçalhos e dados
+      const csvContent = [
+        headers.join(','),
+        ...csvData
+      ].join('\n');
+      
+      // Criar um blob com o conteúdo CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      // Criar um link para download e clicar nele
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `depositos_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpar
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      alert('Arquivo CSV de depósitos gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar depósitos para CSV:', error);
+      alert('Erro ao gerar arquivo CSV de depósitos. Tente novamente.');
+    }
+  };
+
+  const exportMissionsToCSV = () => {
+    try {
+      // Definir cabeçalhos do CSV
+      const headers = ['ID', 'Usuário', 'Nome', 'Missão', 'Pontos', 'Status', 'Data de Envio', 'URL do Comprovante'];
+      
+      // Filtrar as missões com base na pesquisa atual
+      const filteredMissions = missions.filter(mission => {
+        const searchLower = searchTerm.missions.toLowerCase();
+        if (!searchLower) return true;
+        
+        const userName = mission.users?.raw_user_meta_data?.name || '';
+        if (userName.toLowerCase().includes(searchLower)) return true;
+        
+        const missionTitle = mission.missions?.title || '';
+        if (missionTitle.toLowerCase().includes(searchLower)) return true;
+        
+        const status = mission.status || '';
+        if (status.toLowerCase().includes(searchLower)) return true;
+        
+        return false;
+      });
+      
+      // Mapear os dados das missões para o formato CSV
+      const csvData = filteredMissions.map(mission => {
+        return [
+          mission.id,
+          mission.user_id,
+          mission.users?.raw_user_meta_data?.name || 'N/A',
+          mission.missions?.title || `Missão #${mission.mission_id.substring(0, 8)}`,
+          mission.missions?.points_reward || 0,
+          mission.status === 'approved' ? 'Aprovado' : mission.status === 'rejected' ? 'Rejeitado' : 'Pendente',
+          new Date(mission.created_at).toLocaleDateString('pt-BR'),
+          mission.proof_url || 'N/A'
+        ].map(value => `"${value}"`).join(',');
+      });
+      
+      // Juntar cabeçalhos e dados
+      const csvContent = [
+        headers.join(','),
+        ...csvData
+      ].join('\n');
+      
+      // Criar um blob com o conteúdo CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      // Criar um link para download e clicar nele
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `missoes_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      
+      // Limpar
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      alert('Arquivo CSV gerado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao exportar para CSV:', error);
+      alert('Erro ao gerar arquivo CSV. Tente novamente.');
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -921,96 +1050,119 @@ function AdminPanel({ setView }: AdminPanelProps) {
 
           <div className="overflow-x-auto -mx-6 sm:mx-0">
             {activeTab === 'deposits' && (
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-900/50">
-                  <tr>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Usuário
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Plataforma
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Valor
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Data
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {deposits
-                    .filter(deposit =>
-                      searchTerm.deposits === '' ||
-                      deposit.users?.raw_user_meta_data?.name?.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
-                      deposit.users?.raw_user_meta_data?.phone?.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
-                      deposit.platform.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
-                      deposit.amount.toString().includes(searchTerm.deposits)
-                    )
-                    .map((deposit) => (
-                      <tr key={deposit.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
-                            {deposit.users?.raw_user_meta_data?.name || 'N/A'}
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {deposit.users?.raw_user_meta_data?.phone || 'N/A'}
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {deposit.platform}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                          R$ {deposit.amount.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          {getStatusBadge(deposit.status)}
-                        </td>
-                        <td className="hidden sm:table-cell px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {new Date(deposit.created_at).toLocaleDateString('pt-BR')}
-                        </td>
-                        <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                          <button
-                            onClick={() => {
-                              setSelectedImage(deposit.receipt_url || null);
-                              setShowImageModal(true);
-                            }}
-                            className={`text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-2 ${!deposit.receipt_url ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            disabled={!deposit.receipt_url}
-                            title={deposit.receipt_url ? 'Ver comprovante' : 'Sem comprovante'}
-                          >
-                            <Eye className="w-5 h-5" />
-                          </button>
-                          {deposit.status === 'pending' && (
-                            <>
-                              <button
-                                onClick={() => handleStatusUpdate(deposit.id, 'approved')}
-                                className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 p-2"
-                              >
-                                <CheckCircle className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setSelectedDeposit(deposit);
-                                  setShowModal(true);
-                                }}
-                                className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2"
-                              >
-                                <XCircle className="w-5 h-5" />
-                              </button>
-                            </>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                </tbody>
-              </table>
+              <>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-white">Comprovantes de Depósito</h2>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={fetchDeposits}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                      Atualizar
+                    </button>
+                    <button
+                      onClick={exportDepositsToCSV}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                      Exportar CSV
+                    </button>
+                  </div>
+                </div>
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <tr>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Usuário
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Plataforma
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Valor
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Data
+                      </th>
+                      <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {deposits
+                      .filter(deposit =>
+                        searchTerm.deposits === '' ||
+                        deposit.users?.raw_user_meta_data?.name?.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
+                        deposit.users?.raw_user_meta_data?.phone?.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
+                        deposit.platform.toLowerCase().includes(searchTerm.deposits.toLowerCase()) ||
+                        deposit.amount.toString().includes(searchTerm.deposits)
+                      )
+                      .map((deposit) => (
+                        <tr key={deposit.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {deposit.users?.raw_user_meta_data?.name || 'N/A'}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                              {deposit.users?.raw_user_meta_data?.phone || 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {deposit.platform}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                            R$ {deposit.amount.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            {getStatusBadge(deposit.status)}
+                          </td>
+                          <td className="hidden sm:table-cell px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(deposit.created_at).toLocaleDateString('pt-BR')}
+                          </td>
+                          <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+                            <button
+                              onClick={() => {
+                                setSelectedImage(deposit.receipt_url || null);
+                                setShowImageModal(true);
+                              }}
+                              className={`text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-2 ${!deposit.receipt_url ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              disabled={!deposit.receipt_url}
+                              title={deposit.receipt_url ? 'Ver comprovante' : 'Sem comprovante'}
+                            >
+                              <Eye className="w-5 h-5" />
+                            </button>
+                            {deposit.status === 'pending' && (
+                              <>
+                                <button
+                                  onClick={() => handleStatusUpdate(deposit.id, 'approved')}
+                                  className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 p-2"
+                                >
+                                  <CheckCircle className="w-5 h-5" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setSelectedDeposit(deposit);
+                                    setShowModal(true);
+                                  }}
+                                  className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 p-2"
+                                >
+                                  <XCircle className="w-5 h-5" />
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </>
             )}
 
             {activeTab === 'missions' && (
@@ -1041,6 +1193,14 @@ function AdminPanel({ setView }: AdminPanelProps) {
                     >
                       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                       Atualizar
+                    </button>
+                    <button
+                      onClick={exportMissionsToCSV}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm"
+                      disabled={loading}
+                    >
+                      {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                      Exportar Missões para CSV
                     </button>
                   </div>
                 </div>
@@ -1085,15 +1245,12 @@ function AdminPanel({ setView }: AdminPanelProps) {
                               const searchLower = searchTerm.missions.toLowerCase();
                               if (!searchLower) return true;
                               
-                              // Buscar no nome do usuário
                               const userName = mission.users?.raw_user_meta_data?.name || '';
                               if (userName.toLowerCase().includes(searchLower)) return true;
                               
-                              // Buscar no título da missão
                               const missionTitle = mission.missions?.title || '';
                               if (missionTitle.toLowerCase().includes(searchLower)) return true;
                               
-                              // Buscar no status
                               const status = mission.status || '';
                               if (status.toLowerCase().includes(searchLower)) return true;
                               
@@ -1401,13 +1558,19 @@ function AdminPanel({ setView }: AdminPanelProps) {
                   <p className="text-gray-700 dark:text-gray-300">
                     Erro ao carregar a imagem. O arquivo pode não existir ou não ser uma imagem válida.
                   </p>
+                  <button
+                    onClick={handleImageRetry}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Tentar novamente
+                  </button>
                 </div>
               ) : (
                 <img
                   src={selectedImage}
                   alt="Comprovante"
                   className="max-w-full max-h-[70vh] object-contain"
-                  onError={() => setImageError(true)}
+                  onError={handleImageError}
                 />
               )}
             </div>
