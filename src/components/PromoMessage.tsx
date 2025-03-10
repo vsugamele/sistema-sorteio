@@ -10,8 +10,6 @@ interface PromoMessageProps {
 export function PromoMessage({ setView }: PromoMessageProps) {
   const [showModal, setShowModal] = React.useState(false);
   const [showVideo, setShowVideo] = React.useState(false);
-  // URL da imagem de capa do vídeo
-  const thumbnailUrl = "https://i.imgur.com/FUy7oGF.jpg";
 
   const toggleVideo = () => {
     setShowVideo(!showVideo);
@@ -84,13 +82,12 @@ export function PromoMessage({ setView }: PromoMessageProps) {
             className="relative aspect-video rounded-lg flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden"
             onClick={toggleVideo}
           >
-            <img 
-              src={thumbnailUrl}
-              alt="Capa do vídeo tutorial" 
-              className="absolute inset-0 w-full h-full object-cover"
+            {/* Usando um gradiente colorido em vez de uma imagem externa */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-br from-purple-800 via-pink-600 to-purple-900"
             />
-            <div className="absolute inset-0 bg-black/30 hover:bg-black/40 transition-colors flex items-center justify-center">
-              <div className="text-white text-center">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-white text-center z-10">
                 <div className="bg-pink-600/80 rounded-full p-4 mb-3 backdrop-blur-sm">
                   <Play className="w-12 h-12 mx-auto" />
                 </div>
