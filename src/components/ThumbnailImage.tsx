@@ -9,7 +9,7 @@ export const ThumbnailImage: React.FC = () => {
     const img = new Image();
     img.onload = () => setImageLoaded(true);
     img.onerror = () => setImageError(true);
-    img.src = "https://preview--windsnap-sharing.lovable.app/shared/df62huuj0ywftqbwkylo";
+    img.src = "https://windsnap-sharing.lovable.app/shared/44brge2ohuw88w2i5sug";
   }, []);
 
   return (
@@ -21,7 +21,7 @@ export const ThumbnailImage: React.FC = () => {
         </div>
       ) : (
         <img 
-          src="https://preview--windsnap-sharing.lovable.app/shared/df62huuj0ywftqbwkylo" 
+          src="https://windsnap-sharing.lovable.app/shared/44brge2ohuw88w2i5sug" 
           alt="Capa do vídeo tutorial" 
           className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onLoad={() => setImageLoaded(true)}
