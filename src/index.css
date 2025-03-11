@@ -255,3 +255,50 @@ body {
     padding-top: 100px; /* Espaço para a barra de navegação fixa */
   }
 }
+
+/* Garantir que o conteúdo principal não fique escondido atrás da barra de navegação fixa */
+body {
+  padding-top: 60px; /* Altura da barra de navegação */
+}
+
+@media (min-width: 640px) {
+  body {
+    padding-top: 65px; /* Altura da barra de navegação em telas maiores */
+  }
+}
+
+/* Ocultar apenas barras específicas no topo da página */
+body > div:not(#root):first-child {
+  opacity: 0.01 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Ajustes para a barra de navegação */
+nav.ios-nav {
+  top: 0 !important;
+  z-index: 999997 !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
+/* Garantir que o conteúdo principal ocupe toda a altura da tela */
+#root {
+  min-height: calc(100vh - 60px);
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Prevenir que elementos externos apareçam por cima da navegação */
+body > div:not(#root) {
+  z-index: -1 !important;
+  position: relative !important;
+}
+
+/* Garantir que o menu de plataformas fique por cima de tudo */
+.platforms-dropdown {
+  z-index: 999999 !important;
+  position: relative !important;
+}
