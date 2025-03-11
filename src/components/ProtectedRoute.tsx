@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { supabase } from '../lib/supabase';
+import { supabase, clearSession } from '../lib/supabase';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  // Mantemos esses parâmetros para compatibilidade futura, mesmo que não sejam usados agora
   requiredPermission?: string;
   adminOnly?: boolean;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   requiredPermission,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   adminOnly = false 
 }) => {
   const [loading, setLoading] = useState(true);
@@ -35,8 +38,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         setLoading(false);
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
-        // Em caso de erro, permitir acesso
-        setIsAuthenticated(true);
+        // Em caso de erro, limpar a sessão e redirecionar para login
+        await clearSession();
+        setIsAuthenticated(false);
         setLoading(false);
       }
     };

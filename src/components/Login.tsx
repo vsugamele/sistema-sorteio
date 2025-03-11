@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase, clearSession } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
@@ -17,10 +17,19 @@ export function Login() {
   useEffect(() => {
     // Verificar se já está logado
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        console.log("Usuário já está logado, redirecionando para /receipt");
-        navigate('/receipt');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          console.log("Usuário já está logado, redirecionando para /receipt");
+          // Pequeno atraso para garantir que a navegação funcione corretamente
+          setTimeout(() => {
+            navigate('/receipt');
+          }, 100);
+        }
+      } catch (error) {
+        console.error("Erro ao verificar sessão:", error);
+        // Em caso de erro, limpar a sessão
+        await clearSession();
       }
     };
     
@@ -33,7 +42,7 @@ export function Login() {
     setError(null);
     
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });

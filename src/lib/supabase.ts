@@ -12,10 +12,18 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
+    detectSessionInUrl: false, // Desativar detecção de sessão na URL para evitar problemas em dispositivos móveis
     storage: typeof window !== 'undefined' ? window.localStorage : undefined
   }
 });
+
+// Função para limpar a sessão em caso de problemas
+export async function clearSession() {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('supabase.auth.token');
+    await supabase.auth.signOut();
+  }
+}
 
 // Função para fazer login
 export async function login(email: string, password: string): Promise<{ success: boolean; message: string }> {
