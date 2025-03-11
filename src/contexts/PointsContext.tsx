@@ -29,6 +29,10 @@ export function PointsProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
         setPoints({ approved: 0, pending: 0 });
+      } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        // Fetch points immediately when user signs in or token is refreshed
+        console.log('Auth state changed to:', event, '- fetching points');
+        fetchPoints(true);
       }
     });
 

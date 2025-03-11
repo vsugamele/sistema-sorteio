@@ -29,11 +29,26 @@ export function Navigation() {
   const [hasPixKey, setHasPixKey] = useState(false);
 
   useEffect(() => {
-    Promise.all([
-      fetchPendingPrizes(),
-      fetchTickets(),
-      fetchPixKey()
-    ]);
+    const loadInitialData = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          // Garantir que os pontos sejam carregados se o usuário estiver autenticado
+          await fetchPoints();
+          
+          // Carregar outros dados
+          await Promise.all([
+            fetchPendingPrizes(),
+            fetchTickets(),
+            fetchPixKey()
+          ]);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar dados iniciais:', error);
+      }
+    };
+    
+    loadInitialData();
   }, []);
 
   useEffect(() => {
