@@ -18,6 +18,12 @@ export function Login() {
     // Verificar se já está logado
     const checkSession = async () => {
       try {
+        // Limpar parâmetros de URL que podem interferir no login
+        if (window.location.search) {
+          const cleanUrl = window.location.pathname;
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
+        
         // Se for iOS, limpar a sessão primeiro para evitar problemas de cache
         if (isIOS()) {
           console.log("Dispositivo iOS detectado, limpando cache de sessão");
@@ -32,6 +38,8 @@ export function Login() {
           setTimeout(() => {
             navigate('/receipt');
           }, 300);
+        } else {
+          console.log("Usuário não está logado, permanecendo na tela de login");
         }
       } catch (error) {
         console.error("Erro ao verificar sessão:", error);

@@ -33,9 +33,30 @@ export const isIOS = () => {
 // Função para limpar a sessão em caso de problemas
 export async function clearSession() {
   if (typeof window !== 'undefined') {
+    // Limpar todos os itens do localStorage relacionados ao Supabase
     localStorage.removeItem('supabase.auth.token');
+    localStorage.removeItem('supabase.auth.expires_at');
+    localStorage.removeItem('supabase.auth.refresh_token');
+    
+    // Limpar qualquer outro item de autenticação que possa existir
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && (key.includes('supabase') || key.includes('auth'))) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
     try {
+      // Tentar fazer logout usando o Supabase
       await supabase.auth.signOut();
+      
+      // Redirecionar para a página de login após limpar a sessão
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     } catch (error) {
       console.error("Erro ao fazer logout:", error);
     }

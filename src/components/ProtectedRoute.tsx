@@ -58,6 +58,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirecionar para login apenas se não estiver autenticado
   if (!isAuthenticated) {
+    console.log('Redirecionando para /login');
+    // Usar window.location.href como fallback para garantir o redirecionamento na Vercel
+    setTimeout(() => {
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }, 100);
     return <Navigate to="/login" replace />;
   }
 

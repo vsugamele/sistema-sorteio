@@ -171,7 +171,8 @@ export function Navigation() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      window.location.reload();
+      // Redirecionar explicitamente para a página de login em vez de recarregar
+      window.location.href = '/login';
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
@@ -306,40 +307,6 @@ export function Navigation() {
                       </div>
                     </div>
                   </div>
-                  {/* Botão para atualizar status de administrador */}
-                  <button
-                    onClick={async () => {
-                      try {
-                        // Importar a função isAdmin dinamicamente
-                        const { isAdmin } = await import('../lib/supabase');
-                        
-                        // Verificar se o usuário é administrador
-                        const userIsAdmin = await isAdmin();
-                        console.log('Status de administrador atualizado:', userIsAdmin);
-                        
-                        setIsAdmin(userIsAdmin);
-                        if (userProfile) {
-                          setUserProfile({
-                            ...userProfile,
-                            isAdmin: userIsAdmin
-                          });
-                        }
-                        
-                        alert(userIsAdmin 
-                          ? 'Você é um administrador! A página será recarregada para aplicar as alterações.' 
-                          : 'Você não é um administrador.');
-                        
-                        if (userIsAdmin) {
-                          window.location.reload();
-                        }
-                      } catch (error) {
-                        console.error('Erro ao atualizar status de administrador:', error);
-                      }
-                    }}
-                    className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Atualizar status de administrador
-                  </button>
                 </div>
                 <div className="space-y-2 p-2">
                   {tickets.total > 0 && (
