@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Gamepad2, Zap, HeadphonesIcon, ChevronDown, Trophy, User, LogOut, Sun, Moon, Target, Gift, DollarSign, Loader2, X, Ticket, RefreshCw } from 'lucide-react';
+import { Layout, Gamepad2, Zap, HeadphonesIcon, ChevronDown, Trophy, User, LogOut, Sun, Moon, Target, Gift, DollarSign, Loader2, X, Ticket, RefreshCw, Upload } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
@@ -160,7 +160,7 @@ export function Navigation() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      window.location.reload();
+      navigate('/login');
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
@@ -444,7 +444,7 @@ export function Navigation() {
       </div>
 
       {/* Main Navigation */}
-      <div className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg ${isMobileMenuOpen ? 'hidden' : 'block lg:block'}`}>
         <div className="max-w-6xl mx-auto">
           <ul className="flex flex-col lg:flex-row lg:items-center lg:justify-center lg:space-x-8 px-4 py-2 lg:py-4 space-y-2 lg:space-y-0">
             <li className="relative platforms-menu">
@@ -580,42 +580,117 @@ export function Navigation() {
       </div>
       
       {/* Mobile Menu */}
-      <div className={`lg:hidden fixed inset-x-0 top-[57px] sm:top-[65px] bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
-        <div className="p-4 space-y-4">
-          <Link
-            to="/receipt"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <Trophy className="w-5 h-5 text-blue-500" />
-            <span>Principal</span>
-          </Link>
-          <Link
-            to="/missions"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <Target className="w-5 h-5 text-purple-500" />
-            <span>Missões</span>
-          </Link>
-          <Link
-            to="/roulette"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
-            <Gift className="w-5 h-5 text-pink-500" />
-            <span>Raspadinha</span>
-          </Link>
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      <div className={`lg:hidden fixed inset-0 z-50 transform transition-transform duration-300 ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+        <div className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm bg-white dark:bg-gray-800 shadow-xl flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
+            <button
               onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <Layout className="w-5 h-5 text-green-500" />
-              <span>Admin</span>
-            </Link>
-          )}
+              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+            </button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="space-y-2">
+              <Link
+                to="/receipt"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Upload className="w-5 h-5 text-blue-500" />
+                <span className="text-gray-700 dark:text-gray-300">Registrar Participação</span>
+              </Link>
+              
+              <Link
+                to="/roulette"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Gift className="w-5 h-5 text-purple-500" />
+                <span className="text-gray-700 dark:text-gray-300">Raspadinha da Sorte</span>
+              </Link>
+              
+              <Link
+                to="/missions"
+                className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <Target className="w-5 h-5 text-green-500" />
+                <span className="text-gray-700 dark:text-gray-300">Missões</span>
+              </Link>
+              
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Layout className="w-5 h-5 text-indigo-500" />
+                  <span className="text-gray-700 dark:text-gray-300">Painel Admin</span>
+                </Link>
+              )}
+            </div>
+
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4">
+              <div className="px-4">
+                <div className="font-medium text-gray-900 dark:text-white">{userProfile?.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{userProfile?.phone}</div>
+              </div>
+
+              {tickets.total > 0 && (
+                <button
+                  onClick={() => {
+                    setShowTicketsModal(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-purple-50 dark:bg-purple-900/20 rounded-lg hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <Ticket className="w-5 h-5 text-purple-500" />
+                    <div>
+                      <span className="font-semibold text-gray-900 dark:text-gray-100">
+                        {tickets.pending} {tickets.pending === 1 ? 'ticket' : 'tickets'}
+                      </span>
+                      <span className="text-gray-700 dark:text-gray-300 text-sm ml-1">
+                        {tickets.pending === 1 ? 'pendente' : 'pendentes'}
+                      </span>
+                    </div>
+                  </div>
+                  <RefreshCw 
+                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      fetchTickets();
+                    }}
+                  />
+                </button>
+              )}
+
+              <button
+                onClick={() => {
+                  setShowPixModal(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="w-full px-4 py-3 flex items-center gap-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
+              >
+                <DollarSign className="w-5 h-5 text-blue-500" />
+                <span className="text-gray-700 dark:text-gray-300">
+                  {hasPixKey ? 'Alterar Chave PIX' : 'Configurar Chave PIX'}
+                </span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="w-full px-4 py-3 flex items-center gap-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Sair</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       
