@@ -1,27 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Trophy, Gift, AlertCircle, Coins, Ticket, ArrowLeft, X, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { View, ViewSetter } from '../App';
+import { useNavigate } from 'react-router-dom';
 import { usePoints } from '../contexts/PointsContext';
 
-interface RouletteProps {
-  setView: ViewSetter;
-}
-
 interface Prize {
-  id: string;
+  id: number;
   name: string;
   type: 'money' | 'ticket' | 'none';
   value: number;
   probability: number;
 }
 
-export default function Roulette({ setView }: RouletteProps) {
-  const [prizes, setPrizes] = useState<Prize[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const [isScratching, setIsScratching] = useState(false);
-  const [scratchedPercentage, setScratchedPercentage] = useState(0);
+export default function Roulette() {
+  const navigate = useNavigate();
   const [selectedPrize, setSelectedPrize] = useState<Prize | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -30,51 +22,9 @@ export default function Roulette({ setView }: RouletteProps) {
   const [isRevealing, setIsRevealing] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const [lastPosition, setLastPosition] = useState<{ x: number; y: number } | null>(null);
-  const [pointsDeducted, setPointsDeducted] = useState(false);
   const [canvasInitialized, setCanvasInitialized] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { points, isRefreshing, fetchPoints } = usePoints();
-  const [pendingPrizes, setPendingPrizes] = useState({ count: 0, value: 0 });
-
-  const fetchPendingPrizes = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const [countResult, valueResult] = await Promise.all([
-        supabase.rpc('get_pending_prizes_count', { user_uuid: user.id }),
-        supabase.rpc('get_pending_prizes_value', { user_uuid: user.id })
-      ]);
-
-      if (countResult.error) throw countResult.error;
-      if (valueResult.error) throw valueResult.error;
-
-      setPendingPrizes({
-        count: countResult.data || 0,
-        value: valueResult.data || 0
-      });
-    } catch (error) {
-      console.error('Error fetching pending prizes:', error);
-    }
-  };
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || canvasInitialized) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Configurar canvas
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-
-    // Preencher com cor de cobertura
-    ctx.fillStyle = '#CBD5E1'; // Cor da raspadinha
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    setCanvasInitialized(true);
-  }, [canvasInitialized]);
 
   const fetchPrizes = async () => {
     try {
@@ -95,11 +45,10 @@ export default function Roulette({ setView }: RouletteProps) {
         color: getPrizeColor(prize.type)
       }));
 
-      setPrizes(formattedPrizes);
+      return formattedPrizes;
     } catch (err) {
       console.error('Error fetching prizes:', err);
-    } finally {
-      setLoading(false);
+      return [];
     }
   };
 
@@ -130,30 +79,40 @@ export default function Roulette({ setView }: RouletteProps) {
   };
 
   useEffect(() => {
-    fetchPrizes();
-  }, []);
+    const canvas = canvasRef.current;
+    if (!canvas || canvasInitialized) return;
 
-  // Manipular tentativa de sair durante a raspagem
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Configurar canvas
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    // Preencher com cor de cobertura
+    ctx.fillStyle = '#CBD5E1'; // Cor da raspadinha
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    setCanvasInitialized(true);
+  }, [canvasInitialized]);
+
   const handleBack = () => {
-    if (isScratching) {
+    if (isDrawing) {
       setShowConfirmation(true);
       return;
     }
     
     resetStates();
-    setView('receipt');
+    navigate('/receipt');
   };
 
   const resetStates = () => {
-    setIsScratching(false);
+    setIsDrawing(false);
     setSelectedPrize(null);
     setShowModal(false);
     setError(null);
-    setScratchedPercentage(0);
     setIsRevealing(false);
-    setIsDrawing(false);
     setLastPosition(null);
-    setPointsDeducted(false);
   };
 
   const handleScratchStart = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
@@ -203,7 +162,6 @@ export default function Roulette({ setView }: RouletteProps) {
       if (pixels[i] === 0) transparentPixels++;
     }
     const percentage = (transparentPixels / (pixels.length / 4)) * 100;
-    setScratchedPercentage(percentage);
 
     // Revelar prêmio quando raspar 70% da área
     if (percentage >= 70) {
@@ -259,7 +217,6 @@ export default function Roulette({ setView }: RouletteProps) {
     
     // Reset states
     setError(null);
-    setPointsDeducted(false);
     setIsProcessing(true);
     setShowModal(false);
 
@@ -270,97 +227,85 @@ export default function Roulette({ setView }: RouletteProps) {
       return;
     }
 
-    setIsScratching(true);
+    const prizes = await fetchPrizes();
+    if (!prizes || prizes.length === 0) {
+      setError('Não há prêmios disponíveis no momento. Tente novamente mais tarde.');
+      setIsProcessing(false);
+      return;
+    }
 
-    try {
-      // Fetch active prizes first
-      const { data: activePrizes, error: prizesError } = await supabase
-        .from('roulette_prizes')
-        .select('*')
-        .eq('active', true);
+    // Calculate total probability
+    const totalProbability = prizes.reduce((sum, prize) => sum + prize.probability, 0);
+    if (totalProbability <= 0) {
+      setError('Configuração de probabilidades inválida. Por favor, tente novamente mais tarde.');
+      setIsProcessing(false);
+      return;
+    }
 
-      if (prizesError) throw prizesError;
-      if (!activePrizes || activePrizes.length === 0) {
-        throw new Error('Não há prêmios disponíveis no momento. Tente novamente mais tarde.');
-      }
+    // Select prize based on probability
+    const random = Math.random() * totalProbability;
+    let sum = 0;
+    const selectedPrize = prizes.find(prize => {
+      sum += prize.probability;
+      return random <= sum;
+    });
 
-      // Calculate total probability
-      const totalProbability = activePrizes.reduce((sum, prize) => sum + prize.probability, 0);
-      if (totalProbability <= 0) {
-        throw new Error('Configuração de probabilidades inválida. Por favor, tente novamente mais tarde.');
-      }
+    if (!selectedPrize) {
+      setError('Erro ao selecionar prêmio. Por favor, tente novamente.');
+      setIsProcessing(false);
+      return;
+    }
 
-      // Select prize based on probability
-      const random = Math.random() * totalProbability;
-      let sum = 0;
-      const selectedPrize = activePrizes.find(prize => {
-        sum += prize.probability;
-        return random <= sum;
+    // Definir o prêmio selecionado antes de atualizar pontos
+    setSelectedPrize(selectedPrize);
+
+    // Mostrar o modal imediatamente após selecionar o prêmio
+    setShowModal(true);
+
+    // Verificar pontos novamente antes de tentar criar o spin
+    const { data: currentPoints } = await supabase
+      .rpc('get_available_points_v2', { user_uuid: user.id });
+
+    if (!currentPoints || currentPoints < 50) {
+      setError('Pontos insuficientes para jogar. Faça mais depósitos ou complete missões.');
+      setIsProcessing(false);
+      return;
+    }
+
+    const { error: spinError } = await supabase
+      .from('roulette_spins')
+      .upsert({
+        user_id: user.id,
+        prize_id: selectedPrize.id,
+        points_spent: 50
       });
 
-      if (!selectedPrize) {
-        throw new Error('Erro ao selecionar prêmio. Por favor, tente novamente.');
+    if (spinError) {
+      if (spinError.message.includes('Insufficient points available')) {
+        setError('Pontos insuficientes para jogar. Faça mais depósitos ou complete missões.');
+      } else {
+        setError('Erro ao criar spin. Por favor, tente novamente.');
       }
-
-      // Definir o prêmio selecionado antes de atualizar pontos
-      setSelectedPrize(selectedPrize);
-
-      // Mostrar o modal imediatamente após selecionar o prêmio
-      setShowModal(true);
-
-      // Verificar pontos novamente antes de tentar criar o spin
-      const { data: currentPoints } = await supabase
-        .rpc('get_available_points_v2', { user_uuid: user.id });
-
-      if (!currentPoints || currentPoints < 50) {
-        throw new Error('Pontos insuficientes para jogar. Faça mais depósitos ou complete missões.');
-      }
-
-      const { error: spinError } = await supabase
-        .from('roulette_spins')
-        .upsert({
-          user_id: user.id,
-          prize_id: selectedPrize.id,
-          points_spent: 50
-        });
-
-      if (spinError) {
-        if (spinError.message.includes('Insufficient points available')) {
-          throw new Error('Pontos insuficientes para jogar. Faça mais depósitos ou complete missões.');
-        }
-        throw spinError;
-      }
-
-      // Marcar que os pontos foram deduzidos com sucesso
-      setPointsDeducted(true);
-
-      // Se ganhou um prêmio, salvar
-      if (selectedPrize.type !== 'none') {
-        try {
-          await saveTicket(selectedPrize.value);
-          // Refresh pending prizes after saving
-          await Promise.all([
-            fetchPoints(),
-            fetchPendingPrizes()
-          ]);
-        } catch (error) {
-          console.error('Error saving prize:', error);
-          // Continue showing the prize even if saving fails
-          // We'll retry saving later
-        }
-      }
-
-
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro ao iniciar a raspadinha. Tente novamente.';
-      console.error('Erro ao iniciar raspadinha:', errorMessage);
-      setError(errorMessage);
-      setShowModal(true);
-      setIsScratching(false);
-      setSelectedPrize(null);
-    } finally {
       setIsProcessing(false);
+      return;
     }
+
+    // Se ganhou um prêmio, salvar
+    if (selectedPrize.type !== 'none') {
+      try {
+        await saveTicket(selectedPrize.value);
+        // Refresh pending prizes after saving
+        await Promise.all([
+          fetchPoints(),
+        ]);
+      } catch (error) {
+        console.error('Error saving prize:', error);
+        // Continue showing the prize even if saving fails
+        // We'll retry saving later
+      }
+    }
+
+    setIsProcessing(false);
   };
 
   const resetCanvas = () => {
@@ -375,14 +320,13 @@ export default function Roulette({ setView }: RouletteProps) {
     canvas.height = canvas.offsetHeight;
     ctx.fillStyle = '#CBD5E1';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    setIsScratching(false);
-    setPointsDeducted(false);
+    setIsDrawing(false);
   };
 
   return (
     <>
       {/* Overlay de bloqueio quando não há pontos suficientes */}
-      {showModal && error && points < 50 && (
+      {showModal && error && points.approved < 50 && (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-sm text-center space-y-4 shadow-xl">
             <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
@@ -393,7 +337,7 @@ export default function Roulette({ setView }: RouletteProps) {
               Você precisa de 50 pontos para jogar. Faça um depósito para ganhar mais pontos!
             </p>
             <button
-              onClick={() => setView('receipt')}
+              onClick={() => navigate('/receipt')}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               type="button"
             >
@@ -449,7 +393,7 @@ export default function Roulette({ setView }: RouletteProps) {
               <button
                 onClick={() => {
                   setShowConfirmation(false);
-                  setView('receipt');
+                  navigate('/receipt');
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
               >
@@ -472,7 +416,7 @@ export default function Roulette({ setView }: RouletteProps) {
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
             Raspadinha da Sorte
           </h2>
-          <p className="text-gray-600 dark:text-gray-300 text-lg mb-4">
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Complete as metas/missões para ganhar pontos. A cada 50 pontos coletados você pode concorrer a diversos prêmios!
           </p>
           <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 max-w-2xl mx-auto">
@@ -554,7 +498,7 @@ export default function Roulette({ setView }: RouletteProps) {
 
         {/* Área da Raspadinha */}
         <div className="relative w-full aspect-[4/3] max-w-md mx-auto mb-8 rounded-xl overflow-hidden bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900">
-          {isScratching && (
+          {isDrawing && (
             <canvas
               ref={canvasRef}
               className="absolute inset-0 w-full h-full cursor-pointer touch-none"
@@ -576,16 +520,16 @@ export default function Roulette({ setView }: RouletteProps) {
 
         <button
           onClick={startScratchCard}
-          disabled={isScratching || points.approved < 50}
+          disabled={isDrawing || points.approved < 50}
           className={`w-full py-4 px-6 rounded-xl font-bold text-lg transition-all duration-300 transform
-            ${isScratching
+            ${isDrawing
               ? 'bg-gray-400 dark:bg-gray-600 text-white cursor-not-allowed'
               : points.approved < 50
               ? 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 cursor-not-allowed'
               : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-xl hover:-translate-y-1 active:scale-95 text-white'
             }`}
         >
-          {isScratching 
+          {isDrawing 
             ? 'Raspando...'
             : points.approved < 50
               ? `Saldo insuficiente (${points.approved}/50 pontos)` 
@@ -616,7 +560,7 @@ export default function Roulette({ setView }: RouletteProps) {
               <X className="w-6 h-6" />
             </button>
             {/* Confetti */}
-            {selectedPrize.id !== 1 && (
+            {selectedPrize.type !== 'none' && (
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 {[...Array(20)].map((_, i) => (
                   <div
@@ -639,7 +583,7 @@ export default function Roulette({ setView }: RouletteProps) {
             
             <div className="text-center space-y-4">
               <div className="flex justify-center">
-                <div className={`w-20 h-20 rounded-full ${selectedPrize.id === 1 ? 'bg-gray-500' : 'bg-gradient-to-br from-blue-500 to-indigo-600'} flex items-center justify-center animate-success shadow-lg`}>
+                <div className={`w-20 h-20 rounded-full ${selectedPrize.type === 'none' ? 'bg-gray-500' : 'bg-gradient-to-br from-blue-500 to-indigo-600'} flex items-center justify-center animate-success shadow-lg`}>
                   <div className="transform hover:scale-110 transition-transform text-white">
                     {getPrizeIcon(selectedPrize.type, selectedPrize.value)}
                   </div>

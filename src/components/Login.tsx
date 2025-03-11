@@ -1,56 +1,52 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
 
-export interface LoginProps {
-  onLoginSuccess: () => void;
-  onSignUpClick: () => void;
-}
-
-export function Login({ onLoginSuccess, onSignUpClick }: LoginProps) {
+export function Login() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [resetPasswordEmail, setResetPasswordEmail] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [resetPasswordSuccess, setResetPasswordSuccess] = useState(false);
+
+  useEffect(() => {
+    // Verificar se já está logado
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("Usuário já está logado, redirecionando para /receipt");
+        navigate('/receipt');
+      }
+    };
+    
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+    
     try {
-      console.log('Tentando fazer login com:', email);
-      
-      // Usando a API padrão do Supabase para login
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
+      
       if (error) {
-        console.error('Erro de login:', error);
-        setError(error.message);
-      } else {
-        console.log('Login bem-sucedido:', data);
-        
-        // Verificar se é admin (apenas para logging)
-        const { data: adminData } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', data.user.id)
-          .single();
-          
-        console.log('É admin?', !!adminData);
-        
-        // Chamar callback de sucesso
-        onLoginSuccess();
+        throw error;
       }
-    } catch (err) {
-      console.error('Erro inesperado:', err);
-      setError('Ocorreu um erro inesperado. Por favor, tente novamente.');
+      
+      console.log("Login bem-sucedido, redirecionando para /receipt");
+      navigate('/receipt');
+    } catch (error: any) {
+      console.error('Erro no login:', error);
+      setError(error.message || 'Ocorreu um erro durante o login. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -60,162 +56,177 @@ export function Login({ onLoginSuccess, onSignUpClick }: LoginProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
+    
     try {
-      console.log('Enviando e-mail de recuperação para:', email);
-      
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/login',
+      const { error } = await supabase.auth.resetPasswordForEmail(resetPasswordEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-
+      
       if (error) {
-        console.error('Erro ao enviar e-mail de recuperação:', error);
-        setError(error.message);
-      } else {
-        console.log('E-mail de recuperação enviado com sucesso');
-        setResetSent(true);
+        throw error;
       }
-    } catch (err) {
-      console.error('Erro inesperado:', err);
-      setError('Ocorreu um erro inesperado. Por favor, tente novamente.');
+      
+      setResetPasswordSuccess(true);
+    } catch (error: any) {
+      console.error('Erro ao enviar email de recuperação:', error);
+      setError(error.message || 'Ocorreu um erro ao enviar o email de recuperação. Tente novamente.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    if (name === 'email') {
-      setEmail(value);
-    } else if (name === 'password') {
-      setPassword(value);
-    }
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-4">
-      <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-        <div className="p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Bem-Vindo ao Sorteios da Laíse</h2>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
-              Faça login para participar de sorteios incríveis!
-            </p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-4">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <div className="text-center">
+          <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">Sorteios da Laíse</h1>
+          <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">Entrar na sua conta</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Acesse para participar dos sorteios e ganhar prêmios
+          </p>
+        </div>
+        
+        {error && (
+          <div className="p-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+            {error}
           </div>
-
-          {resetSent ? (
-            <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg mb-4">
-              <p className="text-green-800 dark:text-green-200">
-                Enviamos instruções de recuperação para seu e-mail. Verifique sua caixa de entrada.
-              </p>
-              <button
-                onClick={() => {
-                  setIsResettingPassword(false);
-                  setResetSent(false);
-                }}
-                className="mt-4 text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                Voltar ao login
-              </button>
+        )}
+        
+        {!showResetPassword ? (
+          <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Email
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white"
+                placeholder="seu@email.com"
+              />
             </div>
-          ) : (
-            <form onSubmit={isResettingPassword ? handleResetPassword : handleLogin} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-200 block">
-                  E-mail
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Mail className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="email"
-                    name="email"
-                    value={email}
-                    onChange={handleChange}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    placeholder="seu@email.com"
-                    required
-                  />
-                </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Senha
+              </label>
+              <div className="mt-1 relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white"
+                  placeholder="********"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? 
+                    <EyeOff className="h-5 w-5 text-gray-400" /> : 
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  }
+                </button>
               </div>
-
-              {!isResettingPassword && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-200 block">
-                    Senha
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      value={password}
-                      onChange={handleChange}
-                      className="block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      placeholder="Digite sua senha"
-                      required
-                    />
-                    <button
-                      type="button"
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <Eye className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-              )}
-
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowResetPassword(true)}
+                  className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+                >
+                  Esqueceu sua senha?
+                </button>
+              </div>
+            </div>
+            
+            <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading 
-                  ? (isResettingPassword ? 'Enviando...' : 'Entrando...') 
-                  : (isResettingPassword ? 'Enviar instruções' : 'Entrar')}
-              </button>
-              
-              {error && (
-                <div className="p-2 text-sm text-red-600 bg-red-50 dark:bg-red-900 dark:text-red-200 rounded">
-                  {error}
-                </div>
-              )}
-            </form>
-          )}
-
-          {!resetSent && (
-            <div className="text-center mt-4">
-              <button
-                onClick={() => {
-                  setIsResettingPassword(!isResettingPassword);
-                  setError(null);
-                }}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                {isResettingPassword ? 'Voltar ao login' : 'Esqueci minha senha'}
+                {loading ? (
+                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  </span>
+                ) : (
+                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                    <LogIn className="h-5 w-5 text-white" aria-hidden="true" />
+                  </span>
+                )}
+                {loading ? 'Entrando...' : 'Entrar'}
               </button>
             </div>
-          )}
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Ainda não tem uma conta?{' '}
+          </form>
+        ) : (
+          <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
+            {resetPasswordSuccess ? (
+              <div className="p-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800" role="alert">
+                Email de recuperação enviado! Verifique sua caixa de entrada.
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label htmlFor="reset-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Email
+                  </label>
+                  <input
+                    id="reset-email"
+                    name="reset-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={resetPasswordEmail}
+                    onChange={(e) => setResetPasswordEmail(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-900 dark:text-white"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+                
+                <div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? 'Enviando...' : 'Enviar email de recuperação'}
+                  </button>
+                </div>
+              </>
+            )}
+            
+            <div className="text-center mt-4">
               <button
-                onClick={onSignUpClick}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                type="button"
+                onClick={() => setShowResetPassword(false)}
+                className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
               >
-                Criar conta
+                Voltar para o login
               </button>
-            </p>
-          </div>
+            </div>
+          </form>
+        )}
+        
+        <div className="text-center mt-4">
+          <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+            Não tem uma conta? Registre-se
+          </Link>
         </div>
       </div>
     </div>

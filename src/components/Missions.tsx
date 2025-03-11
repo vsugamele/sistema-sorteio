@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Gift, AlertCircle, Loader2, Plus, Image as ImageIcon, Instagram, Coins, Send, Users, Video, AtSign, Gamepad2, DollarSign, ExternalLink, X, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
-import { ViewSetter } from '../App';
+import { useNavigate } from 'react-router-dom';
 
 interface SocialMission {
   id: string;
@@ -23,11 +23,8 @@ interface UserSocialMission {
   completed_at: string | null;
 }
 
-interface MissionsProps {
-  setView: ViewSetter;
-}
-
-export function Missions({ setView }: MissionsProps) {
+export function Missions() {
+  const navigate = useNavigate();
   const [missions, setMissions] = useState<SocialMission[]>([]);
   const [userMissions, setUserMissions] = useState<Record<string, UserSocialMission>>({});
   const [loading, setLoading] = useState(true);
@@ -302,7 +299,7 @@ export function Missions({ setView }: MissionsProps) {
       {/* Navigation Buttons */}
       <div className="grid grid-cols-2 gap-4 mb-8">
         <button
-          onClick={() => setView('receipt')}
+          onClick={() => navigate('/receipt')}
           className="relative group overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
         >
           <div className="absolute inset-0 bg-white/10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-700 ease-out" />
@@ -313,7 +310,7 @@ export function Missions({ setView }: MissionsProps) {
         </button>
 
         <button
-          onClick={() => setView('roulette')}
+          onClick={() => navigate('/roulette')}
           className="relative group overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
         >
           <div className="absolute inset-0 bg-white/10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-700 ease-out" />

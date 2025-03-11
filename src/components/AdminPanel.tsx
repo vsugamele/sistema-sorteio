@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, CheckCircle, XCircle, ArrowLeft, UserPlus, Users, Gift, Trophy, Download, Target, AlertCircle, RefreshCw, Upload, MessageSquare, X, Loader2, Edit, Save, Trash2, Plus } from 'lucide-react';
-import { ViewSetter } from '../App';
-import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
+import { supabase, adminApproveMission } from '../lib/supabase';
 
 interface Prize {
   id: string;
@@ -26,6 +26,7 @@ interface Deposit {
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
   receipt_url?: string;
+  points_reward?: number;
   users?: {
     raw_user_meta_data: {
       name: string;
@@ -70,11 +71,8 @@ interface SocialMission {
   active: boolean;
 }
 
-interface AdminPanelProps {
-  setView: ViewSetter;
-}
-
-function AdminPanel({ setView }: AdminPanelProps) {
+function AdminPanel() {
+  const navigate = useNavigate();
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [loading, setLoading] = useState(true);
   const [prizes, setPrizes] = useState<Prize[]>([]);
@@ -179,13 +177,23 @@ function AdminPanel({ setView }: AdminPanelProps) {
     try {
       setSendingMessage(true);
 
+      // Format the expiration date to ensure it's valid
+      let formattedExpiresAt = null;
+      if (messageForm.expiresAt) {
+        const expiresAtDate = new Date(messageForm.expiresAt);
+        // Ensure the expiration date is in the future
+        if (expiresAtDate > new Date()) {
+          formattedExpiresAt = expiresAtDate.toISOString();
+        }
+      }
+
       const { error } = await supabase
         .from('user_messages')
         .insert({
           title: messageForm.title,
           content: messageForm.content,
           user_id: messageForm.userId || null,
-          expires_at: messageForm.expiresAt || null,
+          expires_at: formattedExpiresAt,
           created_by: (await supabase.auth.getUser()).data.user?.id
         });
 
@@ -278,11 +286,10 @@ function AdminPanel({ setView }: AdminPanelProps) {
         
       console.log('É admin?', !!adminData);
       
-      // Usar a função especial para atualizar missões como administrador
-      // que contorna as restrições de RLS
+      // Buscar dados da missão para uso posterior
       const { data: missionData } = await supabase
         .from('user_missions')
-        .select('*')
+        .select('*, missions(title, points_reward)')
         .eq('id', missionId)
         .single();
         
@@ -290,63 +297,56 @@ function AdminPanel({ setView }: AdminPanelProps) {
         throw new Error('Missão não encontrada');
       }
       
-      // Tentar a atualização direta via SDK do Supabase, confiando na política RLS existente
-      const { error: updateError } = await supabase
-        .from('user_missions')
-        .update({ status })
-        .eq('id', missionId);
+      // Usar a nova função para atualizar a missão via REST API
+      const success = await adminApproveMission(missionId, status);
+      
+      if (!success) {
+        throw new Error('Falha ao atualizar missão. Verifique o console para mais detalhes.');
+      }
+      
+      // Atualizar a interface imediatamente
+      setMissions(prev => 
+        prev.map(mission => 
+          mission.id === missionId 
+            ? { ...mission, status } 
+            : mission
+        )
+      );
+      
+      // Se a missão foi aprovada, criar uma transação de pontos
+      if (action === 'approve' && missionData.missions?.points_reward) {
+        const pointsToAdd = missionData.missions.points_reward;
         
-      if (updateError) {
-        console.error('Erro ao atualizar missão via SDK:', updateError);
-        
-        // Tentar via API REST com cabeçalho especial para bypass do RLS
-        console.log('Tentando atualização via API REST com bypass de RLS');
-        
-        const response = await fetch(`${supabaseUrl}/rest/v1/user_missions?id=eq.${missionId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${supabaseKey}`,
-            'apikey': supabaseKey,
-            'Prefer': 'return=minimal',
-            'X-Client-Info': 'admin-bypass'
-          },
-          body: JSON.stringify({ status })
-        });
-        
-        if (!response.ok) {
-          console.error('Erro na API REST:', await response.text());
-          throw new Error('Falha ao atualizar missão');
+        try {
+          // Criar transação de pontos - versão simplificada
+          const { error: transactionError } = await supabase
+            .from('point_transactions')
+            .insert({
+              user_id: missionData.user_id,
+              amount: pointsToAdd,
+              type: 'mission',
+              description: `Missão: ${missionData.missions.title || 'Sem título'}`
+              // Removidos campos que podem não existir na tabela
+            });
+            
+          if (transactionError) {
+            console.error('Erro ao criar transação de pontos:', transactionError);
+            // Não falhar a operação se apenas a transação falhar
+          } else {
+            console.log(`Adicionados ${pointsToAdd} pontos para o usuário ${missionData.user_id}`);
+          }
+        } catch (transactionError) {
+          console.error('Exceção ao criar transação de pontos:', transactionError);
+          // Não falhar a operação principal se apenas a transação falhar
         }
       }
       
-      // Se for aprovada, criar transação de pontos
-      if (action === 'approve') {
-        const { error: pointsError } = await supabase
-          .from('point_transactions')
-          .insert({
-            user_id: missionData.user_id,
-            amount: missionData.points,
-            description: `Missão "${missionData.title}" aprovada`,
-            type: 'mission'
-          });
-          
-        if (pointsError) {
-          console.error('Erro ao criar transação de pontos:', pointsError);
-        }
-      }
+      // Atualizar a lista de missões
+      fetchMissions();
       
-      // Atualizar a interface independentemente do resultado no banco de dados
-      setMissions(prev => prev.map(mission => 
-        mission.id === missionId 
-          ? { ...mission, status } 
-          : mission
-      ));
-      
-      console.log(`Missão ${missionId} atualizada com sucesso para ${status}`);
-    } catch (error: any) {
-      console.error('Erro ao atualizar status da missão:', error);
-      alert(`Erro ao atualizar status: ${error.message || 'Tente novamente.'}`);
+    } catch (error) {
+      console.error('Erro ao processar ação da missão:', error);
+      alert(`Erro ao ${action === 'approve' ? 'aprovar' : 'rejeitar'} a missão. Verifique o console para mais detalhes.`);
     } finally {
       setLoading(false);
     }
@@ -398,14 +398,9 @@ function AdminPanel({ setView }: AdminPanelProps) {
       const deposit = deposits.find(d => d.id === depositId);
       if (!deposit) throw new Error('Deposit not found');
 
-      // Calculate points based on deposit amount
-      const points = Math.floor(deposit.amount);
-
+      // Only include essential fields in the update
       const updateData = {
         status,
-        approved_at: new Date().toISOString(),
-        approved_by: (await supabase.auth.getUser()).data.user?.id,
-        points: status === 'approved' ? points : 0,
         ...(status === 'rejected' ? { rejection_reason: rejectionReason } : {})
       };
 
@@ -886,7 +881,7 @@ function AdminPanel({ setView }: AdminPanelProps) {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <button
-            onClick={() => setView('receipt')}
+            onClick={() => navigate('receipt')}
             className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
           >
             <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
@@ -1269,9 +1264,9 @@ function AdminPanel({ setView }: AdminPanelProps) {
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap">
                                   <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    mission.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 
-                                    mission.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : 
-                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                    mission.status === 'approved' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-400' : 
+                                    mission.status === 'rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400' : 
+                                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400'
                                   }`}>
                                     {mission.status === 'approved' ? 'Aprovado' : 
                                      mission.status === 'rejected' ? 'Rejeitado' : 'Pendente'}

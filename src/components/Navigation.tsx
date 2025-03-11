@@ -2,12 +2,8 @@ import React from 'react';
 import { Layout, Gamepad2, Zap, HeadphonesIcon, ChevronDown, Trophy, User, LogOut, Sun, Moon, Target, Gift, DollarSign, Loader2, X, Ticket, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { View, ViewSetter } from '../App';
+import { Link, useNavigate } from 'react-router-dom';
 import { usePoints } from '../contexts/PointsContext';
-
-interface NavigationProps {
-  setView: ViewSetter;
-}
 
 interface UserProfile {
   name: string;
@@ -15,7 +11,7 @@ interface UserProfile {
   isAdmin: boolean;
 }
 
-function Navigation({ setView }: NavigationProps) {
+export function Navigation() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState('');
@@ -32,6 +28,7 @@ function Navigation({ setView }: NavigationProps) {
   const [savingPix, setSavingPix] = useState(false);
   const [showTicketsModal, setShowTicketsModal] = useState(false);
   const [hasPixKey, setHasPixKey] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     Promise.all([
@@ -274,7 +271,7 @@ function Navigation({ setView }: NavigationProps) {
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white px-4 sm:px-6 py-2 sm:py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
-            onClick={() => setView('receipt')}
+            onClick={() => navigate('/receipt')}
             className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity"
           >
             <Trophy className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
@@ -422,16 +419,16 @@ function Navigation({ setView }: NavigationProps) {
                   </div>
                 </div>
                 {isAdmin && (
-                  <a
-                    onClick={() => {
-                      setView('admin');
-                      setIsUserMenuOpen(false);
-                    }}
+                  <Link
+                    to="/admin"
                     className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/50 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 hover:pl-6"
+                    onClick={() => setIsUserMenuOpen(false)}
                   >
-                    <Layout className="w-4 h-4" />
-                    <span>Painel Administrativo</span>
-                  </a>
+                    <div className="flex items-center gap-2">
+                      <Layout className="w-4 h-4" />
+                      <span>Painel Administrativo</span>
+                    </div>
+                  </Link>
                 )}
                 <button
                   onClick={handleLogout}
@@ -482,7 +479,7 @@ function Navigation({ setView }: NavigationProps) {
                   role="menu"
                   aria-orientation="vertical"
                 >
-                  {platforms.map((platform, index) => (
+                  {platforms.map((platform) => (
                     <a
                       key={platform.name}
                       href={platform.url}
@@ -519,36 +516,32 @@ function Navigation({ setView }: NavigationProps) {
               </a>
             </li>
             <li>
-              <a
-                onClick={() => {
-                  setView('roulette');
-                  setActiveMenu('roulette');
-                }}
+              <Link
+                to="/roulette"
                 className={`w-full lg:w-auto min-h-[44px] flex items-center gap-2 px-4 py-3 lg:py-2 rounded-lg transition-all duration-200 ${
                   activeMenu === 'roulette' 
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
                     : 'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
                 }`}
+                onClick={() => setActiveMenu('roulette')}
               >
                 <Gift className="w-5 h-5" />
                 <span className="font-medium text-base">Raspadinha da Sorte</span>
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                onClick={() => {
-                  setView('missions');
-                  setActiveMenu('missions');
-                }}
+              <Link
+                to="/missions"
                 className={`w-full lg:w-auto min-h-[44px] flex items-center gap-2 px-4 py-3 lg:py-2 rounded-lg transition-all duration-200 ${
                   activeMenu === 'missions' 
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
                     : 'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
                 }`}
+                onClick={() => setActiveMenu('missions')}
               >
                 <Target className="w-5 h-5" />
                 <span className="font-medium text-base">Missões</span>
-              </a>
+              </Link>
             </li>
             <li>
               <a
@@ -583,6 +576,46 @@ function Navigation({ setView }: NavigationProps) {
               </a>
             </li>
           </ul>
+        </div>
+      </div>
+      
+      {/* Mobile Menu */}
+      <div className={`lg:hidden fixed inset-x-0 top-[57px] sm:top-[65px] bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
+        <div className="p-4 space-y-4">
+          <Link
+            to="/receipt"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Trophy className="w-5 h-5 text-blue-500" />
+            <span>Principal</span>
+          </Link>
+          <Link
+            to="/missions"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Target className="w-5 h-5 text-purple-500" />
+            <span>Missões</span>
+          </Link>
+          <Link
+            to="/roulette"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Gift className="w-5 h-5 text-pink-500" />
+            <span>Raspadinha</span>
+          </Link>
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <Layout className="w-5 h-5 text-green-500" />
+              <span>Admin</span>
+            </Link>
+          )}
         </div>
       </div>
       
@@ -700,5 +733,3 @@ function Navigation({ setView }: NavigationProps) {
 }
 
 export default Navigation;
-
-export { Navigation };

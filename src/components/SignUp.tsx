@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { Link } from 'react-router-dom';
 
 interface SignUpProps {
-  onLoginClick: () => void;
 }
 
-export function SignUp({ onLoginClick }: SignUpProps) {
+export function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,15 +98,12 @@ export function SignUp({ onLoginClick }: SignUpProps) {
               <p className="text-gray-600 dark:text-gray-300">
                 Verifique seu e-mail para confirmar o cadastro.
               </p>
-              <button
-                onClick={() => {
-                  setSuccess(false);
-                  onLoginClick();
-                }}
-                className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-500 text-white rounded-full font-medium hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+              <Link
+                to="/login"
+                className="inline-block px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-500 dark:to-emerald-500 text-white rounded-full font-medium hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
               >
                 Ir para Login
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -231,12 +228,12 @@ export function SignUp({ onLoginClick }: SignUpProps) {
 
           <div className="text-center text-sm">
             <span className="text-gray-500 dark:text-gray-400">Já tem uma conta?</span>{' '}
-            <button
-              onClick={onLoginClick}
+            <Link
+              to="/login"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               Entrar
-            </button>
+            </Link>
           </div>
         </div>
       </div>

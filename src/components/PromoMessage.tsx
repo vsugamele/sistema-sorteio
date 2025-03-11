@@ -1,14 +1,11 @@
 import React from 'react';
 import { Sparkles, Gift, Star, Trophy, Upload, Target, X, Play } from 'lucide-react';
-import { ViewSetter } from '../App';
+import { useNavigate } from 'react-router-dom';
 import { ReceiptUpload } from './ReceiptUpload';
 import { ThumbnailImage } from './ThumbnailImage';
 
-interface PromoMessageProps {
-  setView: ViewSetter;
-}
-
-export function PromoMessage({ setView }: PromoMessageProps) {
+export function PromoMessage() {
+  const navigate = useNavigate();
   const [showModal, setShowModal] = React.useState(false);
   const [showVideo, setShowVideo] = React.useState(false);
 
@@ -32,7 +29,7 @@ export function PromoMessage({ setView }: PromoMessageProps) {
         </button>
 
         <button
-          onClick={() => setView('roulette')}
+          onClick={() => navigate('/roulette')}
           className="relative group overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
         >
           <div className="absolute inset-0 bg-white/10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-700 ease-out" />
@@ -43,7 +40,7 @@ export function PromoMessage({ setView }: PromoMessageProps) {
         </button>
 
         <button
-          onClick={() => setView('missions')}
+          onClick={() => navigate('/missions')}
           className="relative group overflow-hidden bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
         >
           <div className="absolute inset-0 bg-white/10 transform -skew-x-12 group-hover:skew-x-12 transition-transform duration-700 ease-out" />
