@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Gift, AlertCircle, Loader2, Plus, Image as ImageIcon, Instagram, Coins, Send, Users, Video, AtSign, Gamepad2, DollarSign, ExternalLink, X, Upload } from 'lucide-react';
+import { Gift, AlertCircle, Loader2, Plus, Image as ImageIcon, Instagram, Coins, Send, Users, Video, AtSign, Gamepad2, DollarSign, ExternalLink, X, Upload, Pen } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
 import { useNavigate } from 'react-router-dom';
@@ -412,7 +412,21 @@ export function Missions() {
                         <span className="text-sm">Ver Comprovante</span>
                       </a>
                     )}
-                    {(!userMission || userMission.status === 'rejected') && (
+                    {/* Mostrar botão de editar comprovante quando já existe um comprovante ou quando foi rejeitado */}
+                    {userMission && (userMission.status === 'rejected' || userMission.status === 'submitted') && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMission(mission);
+                          setShowProofModal(true);
+                        }}
+                        className="flex-1 py-2 px-3 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
+                      >
+                        <Pen className="w-4 h-4" />
+                        <span className="text-sm">{userMission.status === 'rejected' ? 'Corrigir Comprovante' : 'Editar Comprovante'}</span>
+                      </button>
+                    )}
+                    {(!userMission) && (
                       <label className="cursor-pointer flex-1">
                         <div className="w-full py-2 px-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
                           {uploading === mission.id ? (
@@ -444,7 +458,11 @@ export function Missions() {
             <div className="p-6 space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  {selectedMission.title}
+                  {userMissions[selectedMission.id]?.status === 'rejected' 
+                    ? 'Corrigir Comprovante' 
+                    : userMissions[selectedMission.id]?.proof_url 
+                      ? 'Editar Comprovante' 
+                      : 'Enviar Comprovante'}
                 </h3>
                 <button
                   onClick={() => setShowProofModal(false)}
@@ -473,9 +491,34 @@ export function Missions() {
                 )}
                 
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                  <p className="text-gray-600 dark:text-gray-300 mb-4">
-                    Envie uma foto ou captura de tela como prova da missão concluída
-                  </p>
+                  {userMissions[selectedMission.id]?.status === 'rejected' ? (
+                    <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 rounded-lg">
+                      <p className="text-red-600 dark:text-red-400 text-sm font-medium">
+                        Seu comprovante anterior foi recusado. Por favor, envie um novo comprovante que atenda aos requisitos da missão.
+                      </p>
+                    </div>
+                  ) : userMissions[selectedMission.id]?.proof_url ? (
+                    <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-900/30 rounded-lg">
+                      <p className="text-amber-600 dark:text-amber-400 text-sm font-medium">
+                        Você já enviou um comprovante para esta missão. Ao enviar um novo, o anterior será substituído.
+                      </p>
+                      <div className="mt-2">
+                        <a 
+                          href={userMissions[selectedMission.id]?.proof_url || ''} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-500 hover:underline flex items-center gap-1"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                          Ver comprovante atual
+                        </a>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Envie uma foto ou captura de tela como prova da missão concluída
+                    </p>
+                  )}
                   
                   <input
                     type="file"
@@ -504,7 +547,7 @@ export function Missions() {
                     ) : (
                       <>
                         <ImageIcon className="w-5 h-5" />
-                        <span>Enviar Comprovante</span>
+                        <span>{userMissions[selectedMission.id]?.proof_url ? 'Enviar Novo Comprovante' : 'Enviar Comprovante'}</span>
                       </>
                     )}
                   </label>
