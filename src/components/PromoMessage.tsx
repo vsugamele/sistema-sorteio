@@ -14,7 +14,7 @@ export function PromoMessage() {
   };
 
   return (
-    <div className="space-y-8 relative">
+    <div className="space-y-8 relative pt-12 mt-10">
       {/* Navigation Buttons */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <button
