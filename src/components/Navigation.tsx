@@ -270,29 +270,31 @@ export function Navigation() {
       {/* Top Bar */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white px-4 sm:px-6 py-2 sm:py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => navigate('/receipt')}
-            className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity"
-          >
-            <Trophy className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
-            <span className="font-medium text-sm sm:text-base">Sorteio da Laise</span>
-          </button>
+          <div className="flex items-center">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="mr-2 p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/20"
+              aria-expanded={isMobileMenuOpen}
+              aria-label="Menu principal"
+            >
+              <div className="w-6 h-5 flex flex-col justify-between">
+                <span className={`w-full h-0.5 bg-white transform transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+                <span className={`w-full h-0.5 bg-white transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+                <span className={`w-full h-0.5 bg-white transform transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+              </div>
+            </button>
+            
+            <button
+              onClick={() => navigate('/receipt')}
+              className="flex items-center gap-3 group cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 group-hover:scale-110 transition-transform" />
+              <span className="font-medium text-sm sm:text-base">Sorteio da Laise</span>
+            </button>
+          </div>
           
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/20"
-            aria-expanded={isMobileMenuOpen}
-            aria-label="Menu principal"
-          >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span className={`w-full h-0.5 bg-white transform transition-transform duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-              <span className={`w-full h-0.5 bg-white transition-opacity duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-full h-0.5 bg-white transform transition-transform duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-            </div>
-          </button>
-          
-          <div className="relative flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button 
               onClick={toggleDarkMode}
               className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -319,7 +321,7 @@ export function Navigation() {
             
             {isUserMenuOpen && (
               <div className="fixed sm:absolute inset-x-0 sm:inset-x-auto top-[4rem] sm:top-full right-0 mt-2 mx-4 sm:mx-0 sm:w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-3 text-gray-700 dark:text-gray-200 transform origin-top-right transition-all duration-200 ease-out border border-gray-200 dark:border-gray-700 backdrop-blur-sm z-50">
-                <div className="px-4 py-2 border-b border-gray-100">
+                <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
                   <div className="font-medium">{userProfile?.name}</div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">{userProfile?.phone}</div>
                 </div>
@@ -445,8 +447,117 @@ export function Navigation() {
         </div>
       </div>
 
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsMobileMenuOpen(false)}>
+          <div 
+            className="absolute top-[3.5rem] right-0 h-[calc(100vh-3.5rem)] w-3/4 max-w-sm bg-white dark:bg-gray-800 shadow-xl overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4">
+              <ul className="space-y-4">
+                <li className="relative">
+                  <button
+                    onClick={(e) => handleMenuClick('platforms', e)}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg ${
+                      activeMenu === 'platforms' 
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Layout className="w-5 h-5" />
+                      <span className="font-medium">Plataformas</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${activeMenu === 'platforms' ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {activeMenu === 'platforms' && (
+                    <div className="mt-2 ml-4 pl-2 border-l-2 border-gray-200 dark:border-gray-700 space-y-2">
+                      {platforms.map((platform) => (
+                        <a
+                          key={platform.name}
+                          href={platform.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {platform.name}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </li>
+                
+                <li>
+                  <a
+                    href="https://www.laisebet.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Gamepad2 className="w-5 h-5" />
+                    <span className="font-medium">LaiseBet</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <Link
+                    to="/roulette"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Gift className="w-5 h-5" />
+                    <span className="font-medium">Raspadinha da Sorte</span>
+                  </Link>
+                </li>
+                
+                <li>
+                  <Link
+                    to="/missions"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Target className="w-5 h-5" />
+                    <span className="font-medium">Missões</span>
+                  </Link>
+                </li>
+                
+                <li>
+                  <a
+                    href="https://t.me/+gFSFtYVZWyE2OTQx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Zap className="w-5 h-5" />
+                    <span className="font-medium">Sinais</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <a
+                    href="https://t.me/laisebetsuporte"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <HeadphonesIcon className="w-5 h-5" />
+                    <span className="font-medium">Suporte</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Navigation */}
-      <div className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+      <div className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg hidden lg:block`}>
         <div className="max-w-6xl mx-auto">
           <ul className="flex flex-col lg:flex-row lg:items-center lg:justify-center lg:space-x-8 px-4 py-2 lg:py-4 space-y-2 lg:space-y-0">
             <li className="relative platforms-menu">
