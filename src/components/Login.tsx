@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase, clearSession } from '../lib/supabase';
+import { supabase, clearSession, isIOS } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
@@ -18,13 +18,20 @@ export function Login() {
     // Verificar se já está logado
     const checkSession = async () => {
       try {
+        // Se for iOS, limpar a sessão primeiro para evitar problemas de cache
+        if (isIOS()) {
+          console.log("Dispositivo iOS detectado, limpando cache de sessão");
+          // Pequeno atraso para garantir que a UI seja renderizada primeiro
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           console.log("Usuário já está logado, redirecionando para /receipt");
           // Pequeno atraso para garantir que a navegação funcione corretamente
           setTimeout(() => {
             navigate('/receipt');
-          }, 100);
+          }, 300);
         }
       } catch (error) {
         console.error("Erro ao verificar sessão:", error);

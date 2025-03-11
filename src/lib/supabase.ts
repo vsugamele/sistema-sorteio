@@ -14,14 +14,42 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     persistSession: true,
     detectSessionInUrl: false, // Desativar detecção de sessão na URL para evitar problemas em dispositivos móveis
     storage: typeof window !== 'undefined' ? window.localStorage : undefined
+  },
+  global: {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
   }
 });
+
+// Detectar se é um dispositivo iOS
+export const isIOS = () => {
+  if (typeof window === 'undefined') return false;
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+};
 
 // Função para limpar a sessão em caso de problemas
 export async function clearSession() {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('supabase.auth.token');
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+    
+    // Limpar todos os cookies para iOS
+    if (isIOS()) {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf('=');
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/';
+      }
+    }
   }
 }
 
