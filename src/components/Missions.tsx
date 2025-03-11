@@ -345,136 +345,37 @@ export function Missions() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
-        {/* Versão para desktop */}
-        <div className="overflow-x-auto hidden sm:block">
-          <table className="w-full">
-            <thead className="bg-gray-50 dark:bg-gray-900/50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Missão
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Pontos
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Comprovante
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {missions.map((mission) => {
-                const userMission = userMissions[mission.id];
-                
-                return (
-                  <tr key={mission.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div 
-                        className="flex items-center gap-3 cursor-pointer"
-                        onClick={() => {
-                          setSelectedMission(mission);
-                          setShowProofModal(true);
-                        }}
-                      >
-                        <div className="relative p-2 rounded-lg overflow-hidden group">
-                          <div className="absolute inset-0 bg-gradient-to-br from-gray-100/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80 backdrop-blur-[2px] group-hover:from-blue-50 group-hover:to-indigo-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-indigo-900/30 transition-all duration-500" />
-                          <div className="absolute inset-0 bg-gradient-to-tl from-transparent via-white/20 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100 animate-gradient-x transition-opacity duration-700" />
-                          <div className="absolute inset-0 shadow-inner rounded-lg" />
-                          <div className="relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                          {mission.type === 'deposit' ? (
-                            <Coins className="w-6 h-6 text-green-500 dark:text-green-400 filter drop-shadow-md" />
-                          ) : (
-                            getMissionIcon(mission.type, mission.title)
-                          )}
-                          </div>
-                        </div>
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {mission.title}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {mission.points_reward} {mission.points_reward === 1 ? 'ponto' : 'pontos'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {userMission ? getStatusBadge(userMission.status) : getStatusBadge('pending')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                        {userMission?.proof_url && (
-                          <a
-                            onClick={(e) => e.stopPropagation()}
-                            href={userMission.proof_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex-1 min-w-[100px] py-2 px-3 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                          >
-                            <ImageIcon className="w-4 h-4" />
-                            <span className="text-sm">Ver Prova</span>
-                          </a>
-                        )}
-                        {(!userMission || userMission.status === 'rejected') && (
-                          <label className="cursor-pointer">
-                            <div className="flex-1 min-w-[100px] py-2 px-3 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
-                              {uploading === mission.id ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  <span className="text-sm">Enviando...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Plus className="w-4 h-4" />
-                                  <span className="text-sm">Enviar Prova</span>
-                                </>
-                              )}
-                            </div>
-                          </label>
-                        )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Versão para mobile */}
-        <div className="sm:hidden">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {missions.map((mission) => {
-              const userMission = userMissions[mission.id];
-              
-              return (
-                <div 
-                  key={mission.id} 
-                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
-                  onClick={() => {
-                    setSelectedMission(mission);
-                    setShowProofModal(true);
-                  }}
-                >
-                  <div className="flex items-start gap-3 mb-3">
-                    <div className="relative p-2 rounded-lg overflow-hidden group flex-shrink-0 mt-1">
-                      <div className="absolute inset-0 bg-gradient-to-br from-gray-100/80 to-gray-50/80 dark:from-gray-700/80 dark:to-gray-600/80 backdrop-blur-[2px] group-hover:from-blue-50 group-hover:to-indigo-50 dark:group-hover:from-blue-900/30 dark:group-hover:to-indigo-900/30 transition-all duration-500" />
-                      <div className="absolute inset-0 bg-gradient-to-tl from-transparent via-white/20 to-transparent dark:via-white/5 opacity-0 group-hover:opacity-100 animate-gradient-x transition-opacity duration-700" />
-                      <div className="absolute inset-0 shadow-inner rounded-lg" />
-                      <div className="relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+        {/* Versão para desktop e mobile unificada com cards */}
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {missions.map((mission) => {
+            const userMission = userMissions[mission.id];
+            
+            return (
+              <div 
+                key={mission.id} 
+                className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 group"
+                onClick={() => {
+                  setSelectedMission(mission);
+                  setShowProofModal(true);
+                }}
+              >
+                <div className="p-5">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="relative p-3 rounded-lg overflow-hidden group-hover:scale-110 transition-transform duration-300 bg-gradient-to-br from-gray-100 to-white dark:from-gray-700 dark:to-gray-800 shadow-sm">
+                      <div className="relative z-10">
                         {mission.type === 'deposit' ? (
-                          <Coins className="w-6 h-6 text-green-500 dark:text-green-400 filter drop-shadow-md" />
+                          <Coins className="w-7 h-7 text-green-500 dark:text-green-400 filter drop-shadow-md" />
                         ) : (
                           getMissionIcon(mission.type, mission.title)
                         )}
                       </div>
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900 dark:text-white mb-1">
+                      <h3 className="font-semibold text-gray-900 dark:text-white text-lg mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {mission.title}
-                      </div>
+                      </h3>
                       <div className="flex flex-wrap gap-2 items-center">
-                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded-md">
+                        <div className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full">
                           {mission.points_reward} {mission.points_reward === 1 ? 'ponto' : 'pontos'}
                         </div>
                         <div>
@@ -498,7 +399,7 @@ export function Missions() {
                     </div>
                   </div>
                   
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                     {userMission?.proof_url && (
                       <a
                         onClick={(e) => e.stopPropagation()}
@@ -508,7 +409,7 @@ export function Missions() {
                         className="flex-1 py-2 px-3 bg-green-50 dark:bg-green-900/30 hover:bg-green-100 dark:hover:bg-green-900/50 rounded-lg transition-colors inline-flex items-center justify-center gap-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
                       >
                         <ImageIcon className="w-4 h-4" />
-                        <span className="text-sm">Ver Prova</span>
+                        <span className="text-sm">Ver Comprovante</span>
                       </a>
                     )}
                     {(!userMission || userMission.status === 'rejected') && (
@@ -522,7 +423,7 @@ export function Missions() {
                           ) : (
                             <>
                               <Plus className="w-4 h-4" />
-                              <span className="text-sm">Enviar Prova</span>
+                              <span className="text-sm">Enviar Comprovante</span>
                             </>
                           )}
                         </div>
@@ -530,9 +431,9 @@ export function Missions() {
                     )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
       
