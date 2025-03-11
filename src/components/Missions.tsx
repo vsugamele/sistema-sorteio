@@ -297,7 +297,7 @@ export function Missions() {
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
       {/* Navigation Buttons */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-2 gap-4 mb-8 pt-12 mt-10">
         <button
           onClick={() => navigate('/receipt')}
           className="relative group overflow-hidden bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
