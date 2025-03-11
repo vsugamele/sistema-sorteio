@@ -1,9 +1,9 @@
-import React from 'react';
-import { Layout, Gamepad2, Zap, HeadphonesIcon, ChevronDown, Trophy, User, LogOut, Sun, Moon, Target, Gift, DollarSign, Loader2, X, Ticket, RefreshCw } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Layout, Gamepad2, Zap, HeadphonesIcon, ChevronDown, Trophy, User, LogOut, Sun, Moon, Target, Gift, DollarSign, RefreshCw, X, Ticket } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
+import './Navigation.mobile.css';
 
 interface UserProfile {
   name: string;
@@ -266,15 +266,15 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50">
+    <nav className="relative z-50 ios-nav">
       {/* Top Bar */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white px-4 sm:px-6 py-2 sm:py-3">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white px-4 sm:px-6 py-3 sm:py-3">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="mr-2 p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/20"
+              className="mr-2 p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors focus:outline-none focus:ring-2 focus:ring-white/20 lg:hidden"
               aria-expanded={isMobileMenuOpen}
               aria-label="Menu principal"
             >
@@ -306,9 +306,10 @@ export function Navigation() {
                 <Moon className="w-5 h-5" />
               )}
             </button>
+            
             <button
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-              className="flex items-center gap-3 hover:text-blue-100 transition-colors group"
+              className="flex items-center gap-1 hover:text-blue-100 transition-colors group"
               aria-expanded={isUserMenuOpen}
               aria-haspopup="true"
             >
@@ -447,114 +448,68 @@ export function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsMobileMenuOpen(false)}>
-          <div 
-            className="absolute top-[3.5rem] right-0 h-[calc(100vh-3.5rem)] w-3/4 max-w-sm bg-white dark:bg-gray-800 shadow-xl overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+      {/* Mobile Navigation Bar */}
+      <div className="bg-gray-900 text-white lg:hidden">
+        <div className="flex items-center justify-between overflow-x-auto px-2 py-1 no-scrollbar">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              setIsMobileMenuOpen(true);
+              setActiveMenu('platforms');
+            }}
+            className="flex flex-col items-center p-2 min-w-[60px]"
           >
-            <div className="p-4">
-              <ul className="space-y-4">
-                <li className="relative">
-                  <button
-                    onClick={(e) => handleMenuClick('platforms', e)}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg ${
-                      activeMenu === 'platforms' 
-                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
-                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Layout className="w-5 h-5" />
-                      <span className="font-medium">Plataformas</span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 transition-transform ${activeMenu === 'platforms' ? 'rotate-180' : ''}`} />
-                  </button>
-                  
-                  {activeMenu === 'platforms' && (
-                    <div className="mt-2 ml-4 pl-2 border-l-2 border-gray-200 dark:border-gray-700 space-y-2">
-                      {platforms.map((platform) => (
-                        <a
-                          key={platform.name}
-                          href={platform.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {platform.name}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-                </li>
-                
-                <li>
-                  <a
-                    href="https://www.laisebet.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Gamepad2 className="w-5 h-5" />
-                    <span className="font-medium">LaiseBet</span>
-                  </a>
-                </li>
-                
-                <li>
-                  <Link
-                    to="/roulette"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Gift className="w-5 h-5" />
-                    <span className="font-medium">Raspadinha da Sorte</span>
-                  </Link>
-                </li>
-                
-                <li>
-                  <Link
-                    to="/missions"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Target className="w-5 h-5" />
-                    <span className="font-medium">Missões</span>
-                  </Link>
-                </li>
-                
-                <li>
-                  <a
-                    href="https://t.me/+gFSFtYVZWyE2OTQx"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Zap className="w-5 h-5" />
-                    <span className="font-medium">Sinais</span>
-                  </a>
-                </li>
-                
-                <li>
-                  <a
-                    href="https://t.me/laisebetsuporte"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <HeadphonesIcon className="w-5 h-5" />
-                    <span className="font-medium">Suporte</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+            <Layout className="w-5 h-5 mb-1" />
+            <span className="text-xs">Plataformas</span>
+          </button>
+          
+          <a
+            href="https://www.laisebet.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center p-2 min-w-[60px]"
+          >
+            <Gamepad2 className="w-5 h-5 mb-1" />
+            <span className="text-xs">LaiseBet</span>
+          </a>
+          
+          <Link
+            to="/roulette"
+            className="flex flex-col items-center p-2 min-w-[60px]"
+          >
+            <Gift className="w-5 h-5 mb-1" />
+            <span className="text-xs">Raspadinha</span>
+          </Link>
+          
+          <Link
+            to="/missions"
+            className="flex flex-col items-center p-2 min-w-[60px]"
+          >
+            <Target className="w-5 h-5 mb-1" />
+            <span className="text-xs">Missões</span>
+          </Link>
+          
+          <a
+            href="https://t.me/+gFSFtYVZWyE2OTQx"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center p-2 min-w-[60px]"
+          >
+            <Zap className="w-5 h-5 mb-1" />
+            <span className="text-xs">Sinais</span>
+          </a>
+          
+          <a
+            href="https://t.me/laisebetsuporte"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col items-center p-2 min-w-[60px]"
+          >
+            <HeadphonesIcon className="w-5 h-5 mb-1" />
+            <span className="text-xs">Suporte</span>
+          </a>
         </div>
-      )}
+      </div>
 
       {/* Main Navigation */}
       <div className={`bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg hidden lg:block`}>
@@ -566,7 +521,7 @@ export function Navigation() {
                 onClick={(e) => handleMenuClick('platforms', e)}
                 onMouseEnter={() => handleMouseEnter('platforms')}
                 onMouseLeave={handleMouseLeave}
-                className={`w-full lg:w-auto min-h-[44px] flex items-center gap-2 px-4 py-3 lg:py-2 rounded-lg transition-all duration-200 select-none ${
+                className={`hidden sm:flex w-full lg:w-auto min-h-[44px] flex items-center gap-2 px-4 py-3 lg:py-2 rounded-lg transition-all duration-200 select-none ${
                   activeMenu === 'platforms' 
                     ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
                     : 'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400'
@@ -708,6 +663,119 @@ export function Navigation() {
         </div>
       </div>
       
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-40" onClick={() => setIsMobileMenuOpen(false)}>
+          <div 
+            className="absolute top-[3.5rem] right-0 h-[calc(100vh-3.5rem)] w-3/4 max-w-sm bg-white dark:bg-gray-800 shadow-xl overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4">
+              <ul className="space-y-4">
+                <li className="relative">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveMenu(activeMenu === 'platforms' ? '' : 'platforms');
+                    }}
+                    className={`w-full flex items-center justify-between px-4 py-3 rounded-lg ${
+                      activeMenu === 'platforms' 
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/50' 
+                        : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Layout className="w-5 h-5" />
+                      <span className="font-medium">Plataformas</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 transition-transform ${activeMenu === 'platforms' ? 'rotate-180' : ''}`} />
+                  </button>
+                  
+                  {activeMenu === 'platforms' && (
+                    <div className="mt-2 ml-4 pl-2 border-l-2 border-gray-200 dark:border-gray-700 space-y-2">
+                      {platforms.map((platform) => (
+                        <a
+                          key={platform.name}
+                          href={platform.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block py-2 px-3 text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          {platform.name}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </li>
+                
+                <li>
+                  <a
+                    href="https://www.laisebet.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Gamepad2 className="w-5 h-5" />
+                    <span className="font-medium">LaiseBet</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <Link
+                    to="/roulette"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Gift className="w-5 h-5" />
+                    <span className="font-medium">Raspadinha da Sorte</span>
+                  </Link>
+                </li>
+                
+                <li>
+                  <Link
+                    to="/missions"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Target className="w-5 h-5" />
+                    <span className="font-medium">Missões</span>
+                  </Link>
+                </li>
+                
+                <li>
+                  <a
+                    href="https://t.me/+gFSFtYVZWyE2OTQx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <Zap className="w-5 h-5" />
+                    <span className="font-medium">Sinais</span>
+                  </a>
+                </li>
+                
+                <li>
+                  <a
+                    href="https://t.me/laisebetsuporte"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <HeadphonesIcon className="w-5 h-5" />
+                    <span className="font-medium">Suporte</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile Menu */}
       <div className={`lg:hidden fixed inset-x-0 top-[57px] sm:top-[65px] bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-full'}`}>
         <div className="p-4 space-y-4">
@@ -845,7 +913,7 @@ export function Navigation() {
                 >
                   {savingPix ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>Salvando...</span>
                     </>
                   ) : (

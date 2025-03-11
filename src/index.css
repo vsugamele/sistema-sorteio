@@ -199,3 +199,59 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Estilos para dispositivos móveis */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+/* Ajuste para dispositivos móveis com notch ou dynamic island */
+@supports (padding-top: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .fixed.top-0 {
+    top: env(safe-area-inset-top, 0);
+  }
+}
+
+/* Ajuste para a barra de administrador do navegador */
+body {
+  margin-top: 0;
+  padding-top: 0;
+  background-color: #1e293b; /* Cor escura para combinar com a barra de Admin */
+}
+
+/* Estilo para a barra de navegação no iOS */
+.ios-nav {
+  position: relative !important;
+  top: auto !important;
+  margin-top: 0 !important;
+}
+
+/* Ajuste específico para iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  body {
+    /* Adiciona espaço para a barra do Safari */
+    padding-top: 0;
+  }
+  
+  .ios-nav {
+    margin-top: 0 !important;
+  }
+}
+
+/* Posicionamento fixo para a navegação */
+.safe-area-top {
+  top: 0 !important;
+  position: sticky !important;
+  z-index: 50;
+}
+
+/* Ajuste para a barra de navegação mobile */
+@media (max-width: 640px) {
+  body {
+    padding-top: 100px; /* Espaço para a barra de navegação fixa */
+  }
+}
