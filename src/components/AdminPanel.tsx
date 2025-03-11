@@ -1527,9 +1527,18 @@ function AdminPanel() {
 
       {/* Modal de Exemplo */}
       {showImageModal && selectedImage && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={(e) => {
+            // Fechar o modal ao clicar fora dele (no fundo escuro)
+            if (e.target === e.currentTarget) {
+              setShowImageModal(false);
+            }
+          }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] flex flex-col relative">
+            {/* Cabeçalho fixo */}
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                 Visualizar Comprovante
               </h3>
@@ -1540,7 +1549,8 @@ function AdminPanel() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-4 overflow-auto flex-1 flex items-center justify-center">
+            {/* Conteúdo rolável */}
+            <div className="p-4 overflow-auto flex-1">
               {imageError ? (
                 <div className="text-center p-6">
                   <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -1555,15 +1565,27 @@ function AdminPanel() {
                   </button>
                 </div>
               ) : (
-                <img
-                  src={selectedImage}
-                  alt="Comprovante"
-                  className="max-w-full max-h-[70vh] object-contain"
-                  onError={handleImageError}
-                />
+                <div className="flex items-center justify-center min-h-full">
+                  <img
+                    src={selectedImage}
+                    alt="Comprovante"
+                    className="max-w-full object-contain"
+                    onError={handleImageError}
+                  />
+                </div>
               )}
             </div>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+            
+            {/* Rodapé com botão para abrir em nova aba e fechar */}
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-between sticky bottom-0 bg-white dark:bg-gray-800 z-10">
+              <button
+                onClick={() => setShowImageModal(false)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white rounded-md text-sm flex items-center gap-1"
+              >
+                <X className="w-4 h-4" />
+                Fechar
+              </button>
+              
               <a
                 href={selectedImage}
                 target="_blank"
