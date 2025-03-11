@@ -413,6 +413,17 @@ export default function Roulette() {
       {/* Content */}
       <div className="relative">
         <div className="text-center mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <button 
+              onClick={() => navigate('/')} 
+              className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 mr-1" />
+              <span className="text-sm">Voltar</span>
+            </button>
+            <div className="flex-1"></div>
+          </div>
+          
           <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-3">
             Raspadinha da Sorte
           </h2>
