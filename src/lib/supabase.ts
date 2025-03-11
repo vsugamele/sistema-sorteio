@@ -179,14 +179,18 @@ export async function isAdmin(): Promise<boolean> {
       return false;
     }
     
-    console.log(`Verificando se usuário ${session.user.id} é admin`);
+    console.log(`Verificando se usuário ${session.user.id} (${session.user.email}) é admin`);
     
     // Verificar se está na tabela de administradores (admin_users_table)
-    const { data: adminTableData } = await supabase
+    const { data: adminTableData, error: adminTableError } = await supabase
       .from('admin_users_table')  // Tabela nova criada pelo script
       .select('id')
       .eq('id', session.user.id)
       .single();
+      
+    if (adminTableError) {
+      console.log('Erro ao verificar admin_users_table:', adminTableError.message);
+    }
       
     if (adminTableData) {
       console.log('Usuário é admin na tabela admin_users_table');
@@ -194,11 +198,15 @@ export async function isAdmin(): Promise<boolean> {
     }
     
     // Verificar se está na tabela admin_users_real
-    const { data: adminRealData } = await supabase
+    const { data: adminRealData, error: adminRealError } = await supabase
       .from('admin_users_real')
       .select('id')
       .eq('id', session.user.id)
       .single();
+      
+    if (adminRealError) {
+      console.log('Erro ao verificar admin_users_real:', adminRealError.message);
+    }
       
     if (adminRealData) {
       console.log('Usuário é admin na tabela admin_users_real');
@@ -206,11 +214,15 @@ export async function isAdmin(): Promise<boolean> {
     }
     
     // Verificar se está na visão materializada admin_users
-    const { data: adminData } = await supabase
+    const { data: adminData, error: adminError } = await supabase
       .from('admin_users')
       .select('id')
       .eq('id', session.user.id)
       .single();
+      
+    if (adminError) {
+      console.log('Erro ao verificar admin_users:', adminError.message);
+    }
       
     if (adminData) {
       console.log('Usuário é admin na visão materializada admin_users');

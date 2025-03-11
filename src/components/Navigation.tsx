@@ -142,24 +142,26 @@ export function Navigation() {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Fetch user data including admin status
-        const { data: userData, error } = await supabase
-          .from('users')
-          .select('is_admin')
-          .eq('id', user.id)
-          .single();
-
-        if (!error && userData) {
-          setIsAdmin(userData.is_admin || false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          // Importar a função isAdmin dinamicamente para evitar problemas de circular dependency
+          const { isAdmin } = await import('../lib/supabase');
+          
+          // Verificar se o usuário é administrador usando a função isAdmin
+          const userIsAdmin = await isAdmin();
+          console.log('Status de administrador:', userIsAdmin);
+          
+          setIsAdmin(userIsAdmin);
           setUserProfile({
             name: user.user_metadata.name || 'Usuário',
             phone: user.user_metadata.phone || 'Telefone não cadastrado',
-            isAdmin: userData.is_admin || false
+            isAdmin: userIsAdmin
           });
         }
+      } catch (error) {
+        console.error('Erro ao verificar perfil de usuário:', error);
       }
     };
 
@@ -293,8 +295,51 @@ export function Navigation() {
             {isUserMenuOpen && (
               <div className="fixed sm:absolute inset-x-0 sm:inset-x-auto top-[4rem] sm:top-full right-0 mt-2 mx-4 sm:mx-0 sm:w-64 bg-white dark:bg-gray-800 rounded-lg shadow-xl py-3 text-gray-700 dark:text-gray-200 transform origin-top-right transition-all duration-200 ease-out border border-gray-200 dark:border-gray-700 backdrop-blur-sm z-50">
                 <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
-                  <div className="font-medium">{userProfile?.name}</div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{userProfile?.phone}</div>
+                  <div className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <div>
+                      <div className="font-medium text-gray-900 dark:text-white">
+                        {userProfile?.name}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">
+                        {userProfile?.phone}
+                      </div>
+                    </div>
+                  </div>
+                  {/* Botão para atualizar status de administrador */}
+                  <button
+                    onClick={async () => {
+                      try {
+                        // Importar a função isAdmin dinamicamente
+                        const { isAdmin } = await import('../lib/supabase');
+                        
+                        // Verificar se o usuário é administrador
+                        const userIsAdmin = await isAdmin();
+                        console.log('Status de administrador atualizado:', userIsAdmin);
+                        
+                        setIsAdmin(userIsAdmin);
+                        if (userProfile) {
+                          setUserProfile({
+                            ...userProfile,
+                            isAdmin: userIsAdmin
+                          });
+                        }
+                        
+                        alert(userIsAdmin 
+                          ? 'Você é um administrador! A página será recarregada para aplicar as alterações.' 
+                          : 'Você não é um administrador.');
+                        
+                        if (userIsAdmin) {
+                          window.location.reload();
+                        }
+                      } catch (error) {
+                        console.error('Erro ao atualizar status de administrador:', error);
+                      }
+                    }}
+                    className="mt-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    Atualizar status de administrador
+                  </button>
                 </div>
                 <div className="space-y-2 p-2">
                   {tickets.total > 0 && (
@@ -444,7 +489,7 @@ export function Navigation() {
                     href={platform.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0"
+                    className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     {platform.name}
@@ -457,7 +502,7 @@ export function Navigation() {
             href="https://www.laisebet.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
             onClick={() => setActiveMenu('laise')}
           >
             <Gamepad2 className="w-5 h-5" />
@@ -465,7 +510,7 @@ export function Navigation() {
           </a>
           <Link
             to="/roulette"
-            className="flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
             onClick={() => setActiveMenu('roulette')}
           >
             <Target className="w-5 h-5" />
@@ -473,7 +518,7 @@ export function Navigation() {
           </Link>
           <Link
             to="/missions"
-            className="flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
             onClick={() => setActiveMenu('missions')}
           >
             <Zap className="w-5 h-5" />
@@ -483,7 +528,7 @@ export function Navigation() {
             href="https://www.sinaisdalaise.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
             onClick={() => setActiveMenu('sinais')}
           >
             <Target className="w-5 h-5" />
@@ -493,7 +538,7 @@ export function Navigation() {
             href="https://t.me/laisebetsuporte"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center justify-center gap-1 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
             onClick={() => setActiveMenu('suporte')}
           >
             <HeadphonesIcon className="w-5 h-5" />
