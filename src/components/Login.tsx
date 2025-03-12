@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase, clearSession, isIOS } from '../lib/supabase';
+import { supabase, clearSession } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
@@ -15,40 +15,23 @@ export function Login() {
   const [resetPasswordSuccess, setResetPasswordSuccess] = useState(false);
 
   useEffect(() => {
-    // Verificar se já está logado
-    const checkSession = async () => {
+    // Limpar parâmetros de URL que podem interferir no login
+    if (window.location.search) {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+    
+    // Limpar sessão existente ao entrar na página de login
+    const clearExistingSession = async () => {
       try {
-        // Limpar parâmetros de URL que podem interferir no login
-        if (window.location.search) {
-          const cleanUrl = window.location.pathname;
-          window.history.replaceState({}, document.title, cleanUrl);
-        }
-        
-        // Se for iOS, limpar a sessão primeiro para evitar problemas de cache
-        if (isIOS()) {
-          console.log("Dispositivo iOS detectado, limpando cache de sessão");
-          // Pequeno atraso para garantir que a UI seja renderizada primeiro
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-        
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          console.log("Usuário já está logado, redirecionando para /receipt");
-          // Pequeno atraso para garantir que a navegação funcione corretamente
-          setTimeout(() => {
-            navigate('/receipt');
-          }, 300);
-        } else {
-          console.log("Usuário não está logado, permanecendo na tela de login");
-        }
-      } catch (error) {
-        console.error("Erro ao verificar sessão:", error);
-        // Em caso de erro, limpar a sessão
         await clearSession();
+        console.log("Sessão anterior limpa, usuário precisa fazer login manualmente");
+      } catch (error) {
+        console.error("Erro ao limpar sessão:", error);
       }
     };
     
-    checkSession();
+    clearExistingSession();
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {

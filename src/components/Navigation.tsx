@@ -1,9 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Trophy, Gift, Target, Layout, ChevronDown, Zap, HeadphonesIcon, Sun, Moon, User, LogOut, X, Ticket, RefreshCw, DollarSign, Gamepad2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
 import './Navigation.mobile.css';
+import './dropdown-override.css';
+import './dropdown-important.css'; // Regras mais agressivas para o dropdown
+import './bottom-menu.css'; // Estilos modernos para o menu inferior
+import './logo.css'; // Estilos para o logo
 
 interface UserProfile {
   name: string;
@@ -431,8 +435,8 @@ export function Navigation() {
       </div>
 
       {/* Mobile Navigation Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white lg:hidden z-50 shadow-lg">
-        <div className="flex justify-around items-center py-2">
+      <div className={`fixed bottom-0 left-0 right-0 text-white lg:hidden z-50 bottom-nav ${theme === 'dark' ? 'bottom-nav-dark' : ''}`}>
+        <div className="flex justify-around items-center">
           <Link
             to="/receipt"
             className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
@@ -502,25 +506,29 @@ export function Navigation() {
           <ul className="space-y-2">
             <li className="relative">
               <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                ref={buttonRef}
+                onClick={(e) => {
+                  e.stopPropagation(); // Impedir propagação do evento
+                  setIsDropdownOpen(!isDropdownOpen);
+                }}
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Layout className="w-5 h-5" />
-                  <span className="font-medium">Plataformas</span>
+                  <span className="font-normal">Plataformas</span>
                 </div>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
             
               {isDropdownOpen && (
-                <div className="mt-1 bg-gray-50 dark:bg-gray-700 rounded-lg py-1 px-2">
+                <div className="mt-1 bg-white dark:bg-gray-700 rounded-lg py-1 px-2 shadow-lg border border-gray-200 dark:border-gray-600 dropdown-container">
                   {platforms.map((platform) => (
                     <a
                       key={platform.name}
                       href={platform.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block px-4 py-2 text-sm text-white hover:text-blue-100 transition-colors"
+                      className="block px-4 py-2 text-sm text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors dropdown-text-fix"
                     >
                       {platform.name}
                     </a>
@@ -533,10 +541,10 @@ export function Navigation() {
                 href="https://www.laisebet.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <Gamepad2 className="w-5 h-5" />
-                <span className="font-medium">LaiseBet</span>
+                <span className="font-normal">LaiseBet</span>
               </a>
             </li>
             <li>
@@ -546,10 +554,10 @@ export function Navigation() {
                   setActiveMenu('roulette');
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <Target className="w-5 h-5" />
-                <span className="font-medium">Raspadinha</span>
+                <span className="font-normal">Raspadinha</span>
               </Link>
             </li>
             <li>
@@ -559,10 +567,10 @@ export function Navigation() {
                   setActiveMenu('missions');
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <Zap className="w-5 h-5" />
-                <span className="font-medium">Missões</span>
+                <span className="font-normal">Missões</span>
               </Link>
             </li>
             <li>
@@ -574,10 +582,10 @@ export function Navigation() {
                 href="https://www.sinaisdalaise.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <Target className="w-5 h-5" />
-                <span className="font-medium">Sinais</span>
+                <span className="font-normal">Sinais</span>
               </a>
             </li>
             <li>
@@ -589,10 +597,10 @@ export function Navigation() {
                 href="https://t.me/laisebetsuporte"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-600 dark:text-white hover:text-blue-500 dark:hover:text-blue-100 transition-colors"
               >
                 <HeadphonesIcon className="w-5 h-5" />
-                <span className="font-medium">Suporte</span>
+                <span className="font-normal">Suporte</span>
               </a>
             </li>
           </ul>
@@ -606,7 +614,11 @@ export function Navigation() {
             <li className="relative">
               <button
                 ref={buttonRef}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                ref={buttonRef}
+                onClick={(e) => {
+                  e.stopPropagation(); // Impedir propagação do evento
+                  setIsDropdownOpen(!isDropdownOpen);
+                }}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 <Layout className="w-5 h-5" />
@@ -784,4 +796,4 @@ export function Navigation() {
   );
 }
 
-export default Navigation;
+
