@@ -1,0 +1,2 @@
+Este arquivo foi criado para forçar um novo deploy na Vercel.
+Data: 12/03/2025 19:40
