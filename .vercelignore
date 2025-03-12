@@ -1,0 +1,9 @@
+# Arquivos SQL e scripts que não devem ser enviados para a Vercel
+*.sql
+adicionar_admin*.html
+bypass_login.html
+executar_*.html
+login_direto*.html
+solucao_*.html
+atualizar_funcao_supabase.ts
+login_script.js
