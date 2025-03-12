@@ -431,86 +431,65 @@ export function Navigation() {
       </div>
 
       {/* Mobile Navigation Bar */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 lg:hidden z-[999996]">
-        <div className="grid grid-cols-6 h-14">
-          <div className="relative">
-            <button
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className={`flex flex-col items-center justify-center gap-1 w-full h-full ${
-                isDropdownOpen 
-                  ? 'text-blue-600 dark:text-blue-400' 
-                  : 'text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400'
-              }`}
-            >
-              <Layout className="w-5 h-5" />
-              <div className="flex items-center gap-1">
-                <span className="text-xs">Plataformas</span>
-                <ChevronDown className={`w-3 h-3 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 z-50 max-h-[60vh] overflow-y-auto">
-                {platforms.map((platform) => (
-                  <a
-                    key={platform.name}
-                    href={platform.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    {platform.name}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-900 dark:to-blue-950 text-white lg:hidden z-50 shadow-lg">
+        <div className="flex justify-around items-center py-2">
+          <Link
+            to="/receipt"
+            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            onClick={() => {
+              setActiveMenu('receipt');
+              setIsMobileMenuOpen(false);
+            }}
+          >
+            <Trophy className="w-5 h-5" />
+            <span className="text-xs font-medium">Sorteio</span>
+          </Link>
+          
           <a
             href="https://www.laisebet.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
-            onClick={() => setActiveMenu('laise')}
+            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            onClick={() => {
+              setActiveMenu('laise');
+              setIsMobileMenuOpen(false);
+            }}
           >
             <Gamepad2 className="w-5 h-5" />
-            <span className="text-xs">LaiseBet</span>
+            <span className="text-xs font-medium">LaiseBet</span>
           </a>
+          
           <Link
             to="/roulette"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
-            onClick={() => setActiveMenu('roulette')}
+            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            onClick={() => {
+              setActiveMenu('roulette');
+              setIsMobileMenuOpen(false);
+            }}
           >
             <Target className="w-5 h-5" />
-            <span className="text-xs">Raspadinha</span>
+            <span className="text-xs font-medium">Raspadinha</span>
           </Link>
+          
           <Link
             to="/missions"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
-            onClick={() => setActiveMenu('missions')}
+            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            onClick={() => {
+              setActiveMenu('missions');
+              setIsMobileMenuOpen(false);
+            }}
           >
             <Zap className="w-5 h-5" />
-            <span className="text-xs">Missões</span>
+            <span className="text-xs font-medium">Missões</span>
           </Link>
-          <a
-            href="https://www.sinaisdalaise.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
-            onClick={() => setActiveMenu('sinais')}
+          
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
           >
-            <Target className="w-5 h-5" />
-            <span className="text-xs">Sinais</span>
-          </a>
-          <a
-            href="https://t.me/laisebetsuporte"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-blue-600 dark:hover:text-blue-400"
-            onClick={() => setActiveMenu('suporte')}
-          >
-            <HeadphonesIcon className="w-5 h-5" />
-            <span className="text-xs">Suporte</span>
-          </a>
+            <Layout className="w-5 h-5" />
+            <span className="text-xs font-medium">Plataformas</span>
+          </button>
         </div>
       </div>
 
@@ -524,7 +503,7 @@ export function Navigation() {
             <li className="relative">
               <button
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center justify-between px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Layout className="w-5 h-5" />
@@ -541,7 +520,7 @@ export function Navigation() {
                       href={platform.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg"
+                      className="block px-4 py-2 text-sm text-white hover:text-blue-100 transition-colors"
                     >
                       {platform.name}
                     </a>
@@ -554,7 +533,7 @@ export function Navigation() {
                 href="https://www.laisebet.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <Gamepad2 className="w-5 h-5" />
                 <span className="font-medium">LaiseBet</span>
@@ -567,7 +546,7 @@ export function Navigation() {
                   setActiveMenu('roulette');
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <Target className="w-5 h-5" />
                 <span className="font-medium">Raspadinha</span>
@@ -580,7 +559,7 @@ export function Navigation() {
                   setActiveMenu('missions');
                   setIsMobileMenuOpen(false);
                 }}
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <Zap className="w-5 h-5" />
                 <span className="font-medium">Missões</span>
@@ -595,7 +574,7 @@ export function Navigation() {
                 href="https://www.sinaisdalaise.com/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <Target className="w-5 h-5" />
                 <span className="font-medium">Sinais</span>
@@ -610,7 +589,7 @@ export function Navigation() {
                 href="https://t.me/laisebetsuporte"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center gap-2 px-4 py-3 rounded-lg text-white hover:text-blue-100 transition-colors"
               >
                 <HeadphonesIcon className="w-5 h-5" />
                 <span className="font-medium">Suporte</span>
@@ -628,7 +607,7 @@ export function Navigation() {
               <button
                 ref={buttonRef}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 <Layout className="w-5 h-5" />
                 <span className="font-medium">Plataformas</span>
@@ -646,7 +625,7 @@ export function Navigation() {
                       href={platform.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
                       onClick={() => setIsDropdownOpen(false)}
                     >
                       {platform.name}
