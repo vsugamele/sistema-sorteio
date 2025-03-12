@@ -3,11 +3,6 @@ import { Link } from 'react-router-dom';
 import { Trophy, Gift, Target, Layout, ChevronDown, Zap, HeadphonesIcon, Sun, Moon, User, LogOut, X, Ticket, RefreshCw, DollarSign, Gamepad2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { usePoints } from '../contexts/PointsContext';
-import './Navigation.mobile.css';
-import './dropdown-override.css';
-import './dropdown-important.css'; // Regras mais agressivas para o dropdown
-import './bottom-menu.css'; // Estilos modernos para o menu inferior
-import './logo.css'; // Estilos para o logo
 
 interface UserProfile {
   name: string;
@@ -506,7 +501,6 @@ export function Navigation() {
           <ul className="space-y-2">
             <li className="relative">
               <button
-                ref={buttonRef}
                 onClick={(e) => {
                   e.stopPropagation(); // Impedir propagação do evento
                   setIsDropdownOpen(!isDropdownOpen);
@@ -613,7 +607,6 @@ export function Navigation() {
           <ul className="flex flex-col lg:flex-row lg:items-center lg:justify-center lg:space-x-8 px-4 py-2 lg:py-4 space-y-2 lg:space-y-0">
             <li className="relative">
               <button
-                ref={buttonRef}
                 ref={buttonRef}
                 onClick={(e) => {
                   e.stopPropagation(); // Impedir propagação do evento
@@ -795,5 +788,3 @@ export function Navigation() {
     </nav>
   );
 }
-
-
