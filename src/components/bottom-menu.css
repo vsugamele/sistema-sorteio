@@ -1,0 +1,97 @@
+/* Estilos modernos para o menu inferior */
+.bottom-nav {
+  background: linear-gradient(to right, #4338ca, #3b82f6);
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 10px 0 8px;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.bottom-nav-dark {
+  background: linear-gradient(to right, #1e3a8a, #2563eb);
+}
+
+/* Estilização para os itens do menu inferior */
+.bottom-nav .flex {
+  padding-bottom: 5px; /* Adiciona um pouco mais de espaço na parte inferior */
+}
+
+/* Estilização para os ícones no menu inferior */
+.bottom-nav svg {
+  width: 24px !important;
+  height: 24px !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  transition: all 0.3s ease;
+  margin-bottom: 6px;
+  color: white !important;
+  stroke-width: 2px;
+}
+
+/* Efeito de hover nos ícones */
+.bottom-nav a:hover svg,
+.bottom-nav button:hover svg {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
+
+/* Estilização para os textos no menu inferior */
+.bottom-nav span {
+  font-size: 0.8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 5px rgba(255, 255, 255, 0.3);
+  color: white !important;
+  padding: 2px 0;
+}
+
+/* Estilização para os links e botões no menu inferior */
+.bottom-nav a,
+.bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  position: relative;
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Efeito de hover nos links e botões */
+.bottom-nav a:hover,
+.bottom-nav button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Efeito de item ativo */
+.bottom-nav a:after,
+.bottom-nav button:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background-color: white;
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.bottom-nav a:hover:after,
+.bottom-nav button:hover:after {
+  width: 40%;
+}
+
+/* Animação de pulso para o item ativo */
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.bottom-nav a.active svg,
+.bottom-nav button.active svg {
+  animation: pulse 2s infinite;
+}

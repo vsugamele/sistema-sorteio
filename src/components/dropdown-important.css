@@ -1,0 +1,59 @@
+/* Estilos refinados para o dropdown no modo claro */
+
+/* Seletor para texto no dropdown */
+body:not(.dark) a[href],
+body:not(.dark) .dropdown-item,
+body:not(.dark) .platform-dropdown-item,
+body:not(.dark) .mobile-dropdown-text,
+body:not(.dark) .block.px-4.py-2.text-sm {
+  color: #4b5563 !important; /* Cinza mais suave e elegante */
+  font-weight: 400 !important; /* Peso normal para o texto */
+  transition: color 0.2s ease !important;
+}
+
+/* Hover state mais suave */
+body:not(.dark) a[href]:hover,
+body:not(.dark) .dropdown-item:hover,
+body:not(.dark) .platform-dropdown-item:hover {
+  color: #3b82f6 !important; /* Azul no hover */
+  background-color: #f3f4f6 !important; /* Fundo suave no hover */
+}
+
+/* Estilo refinado para o container do dropdown */
+body:not(.dark) .dropdown-container,
+body:not(.dark) .mt-1.bg-white,
+body:not(.dark) div[class*="dropdown"] {
+  background-color: #ffffff !important;
+  border: 1px solid #e5e7eb !important; /* Borda mais sutil */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important; /* Sombra mais suave */
+  border-radius: 0.5rem !important;
+  padding: 0.25rem 0 !important;
+}
+
+/* Estilo para o menu mobile */
+body:not(.dark) .mobile-menu a,
+body:not(.dark) .mobile-menu button,
+body:not(.dark) .mobile-menu span {
+  color: #4b5563 !important;
+  font-weight: 400 !important;
+}
+
+/* Aplicar a todos os links dentro de qualquer dropdown */
+body:not(.dark) [class*="dropdown"] a,
+body:not(.dark) [class*="dropdown"] button,
+body:not(.dark) [class*="dropdown"] span {
+  color: #4b5563 !important;
+}
+
+/* Estilo para ícones no dropdown */
+body:not(.dark) [class*="dropdown"] svg {
+  color: #6b7280 !important;
+}
+
+/* Espaçamento e padding refinados para itens do dropdown */
+body:not(.dark) [class*="dropdown"] a,
+body:not(.dark) [class*="dropdown"] button {
+  padding: 0.5rem 0.75rem !important;
+  margin: 0.125rem 0 !important;
+  border-radius: 0.375rem !important;
+}

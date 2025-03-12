@@ -1,0 +1,28 @@
+/* Correções forçadas para o dropdown no modo claro */
+/* Aplicar a todos os dropdowns no modo claro */
+.dropdown-text-fix {
+  color: #1f2937 !important;
+}
+
+/* Aplicar a todos os itens de dropdown no modo claro */
+a[href], button, .dropdown-item, .platform-dropdown-item {
+  color: #1f2937 !important;
+}
+
+/* No modo escuro, manter texto branco */
+.dark a[href], .dark button, .dark .dropdown-item, .dark .platform-dropdown-item {
+  color: white !important;
+}
+
+/* Forçar cor de fundo branca para todos os dropdowns no modo claro */
+.dropdown-container {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* No modo escuro, manter fundo escuro */
+.dark .dropdown-container {
+  background-color: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
