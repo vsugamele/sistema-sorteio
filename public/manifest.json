@@ -1,0 +1,17 @@
+{
+  "name": "Sorteio da Laise",
+  "short_name": "Sorteio",
+  "description": "Aplicativo de sorteio da Laise",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#1e293b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
