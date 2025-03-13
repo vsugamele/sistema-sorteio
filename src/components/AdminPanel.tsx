@@ -477,25 +477,86 @@ function AdminPanel() {
     setAdminSuccess(false);
 
     try {
-      const { data: userData, error: userError } = await supabase
+      if (!newAdminEmail || !newAdminEmail.includes('@')) {
+        throw new Error('Por favor, insira um email válido');
+      }
+
+      // Primeiro, verificar se o usuário já existe
+      const { data: userData } = await supabase
         .from('users')
         .select('id')
         .eq('email', newAdminEmail)
-        .single();
+        .maybeSingle(); // Usar maybeSingle em vez de single para não gerar erro se não encontrar
 
-      if (userError) throw new Error('Usuário não encontrado');
+      let userId;
 
-      // Update user as admin
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ is_admin: true })
-        .eq('id', userData.id);
-
-      if (updateError) throw updateError;
+      if (!userData) {
+        console.log('Usuário não encontrado, criando novo usuário...');
+        
+        // Gerar uma senha temporária aleatória
+        const tempPassword = Math.random().toString(36).slice(-10);
+        
+        // Criar o usuário na autenticação do Supabase
+        const { data: authData } = await supabase.auth.signUp({
+          email: newAdminEmail,
+          password: tempPassword
+        });
+        
+        if (!authData.user) throw new Error('Erro ao criar usuário: Usuário não retornado');
+        
+        userId = authData.user.id;
+        
+        // Adicionar o usuário na tabela users
+        const { error: insertError } = await supabase
+          .from('users')
+          .insert({
+            id: userId,
+            email: newAdminEmail,
+            name: newAdminEmail.split('@')[0], // Nome básico baseado no email
+            is_admin: true
+          });
+          
+        if (insertError) throw new Error(`Erro ao inserir usuário: ${insertError.message}`);
+      } else {
+        userId = userData.id;
+        
+        // Atualizar usuário existente para admin
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ is_admin: true })
+          .eq('id', userId);
+          
+        if (updateError) throw updateError;
+      }
+      
+      // Adicionar na tabela admin_users_table
+      const { error: adminTableError } = await supabase
+        .from('admin_users_table')
+        .upsert({ 
+          id: userId,
+          email: newAdminEmail
+        });
+        
+      if (adminTableError) {
+        console.error('Erro ao adicionar na tabela admin_users_table:', adminTableError);
+      }
+      
+      // Adicionar na tabela admin_users_real
+      const { error: adminRealError } = await supabase
+        .from('admin_users_real')
+        .upsert({ 
+          id: userId,
+          email: newAdminEmail
+        });
+        
+      if (adminRealError) {
+        console.error('Erro ao adicionar na tabela admin_users_real:', adminRealError);
+      }
 
       setAdminSuccess(true);
       setNewAdminEmail('');
     } catch (error) {
+      console.error('Erro ao adicionar administrador:', error);
       setAdminError(error instanceof Error ? error.message : 'Erro ao adicionar administrador');
     }
   };
