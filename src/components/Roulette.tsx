@@ -96,16 +96,6 @@ export default function Roulette() {
     setCanvasInitialized(true);
   }, [canvasInitialized]);
 
-  const handleBack = () => {
-    if (isDrawing) {
-      setShowConfirmation(true);
-      return;
-    }
-    
-    resetStates();
-    navigate('/receipt');
-  };
-
   const resetStates = () => {
     setIsDrawing(false);
     setSelectedPrize(null);
@@ -353,8 +343,8 @@ export default function Roulette() {
           </div>
         </div>
       )}
-      {/* Botão Voltar */}
-      <div className="mb-8 mt-4 sm:mt-0">
+      {/* Botão Voltar - Removido para evitar duplicação */}
+      {/* <div className="mb-8 mt-4 sm:mt-0">
         <button
           type="button"
           onClick={handleBack}
@@ -362,9 +352,9 @@ export default function Roulette() {
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Voltar</span>
         </button>
-      </div>
+      </div> */}
 
-      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 relative overflow-hidden">
+      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 relative overflow-hidden flex flex-col items-center justify-center p-4 pb-28 md:pb-8">
       {/* Modal de Confirmação para Sair */}
       {showConfirmation && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
@@ -386,7 +376,7 @@ export default function Roulette() {
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setShowConfirmation(false)}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-md transition-colors"
               >
                 Cancelar
               </button>

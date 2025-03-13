@@ -430,64 +430,92 @@ export function Navigation() {
       </div>
 
       {/* Mobile Navigation Bar */}
-      <div className={`fixed bottom-0 left-0 right-0 text-white lg:hidden z-50 bottom-nav ${theme === 'dark' ? 'bottom-nav-dark' : ''}`}>
+      <div 
+        className={`fixed bottom-0 left-0 right-0 text-white lg:hidden z-50 bottom-nav ${theme === 'dark' ? 'bottom-nav-dark' : ''}`}
+        style={{
+          background: 'linear-gradient(to right, #1e40af, #1d4ed8)',
+          boxShadow: '0 -4px 15px rgba(0, 0, 0, 0.6)',
+          opacity: 1,
+          borderTopLeftRadius: '20px',
+          borderTopRightRadius: '20px'
+        }}
+      >
         <div className="flex justify-around items-center">
           <Link
             to="/receipt"
-            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
-            onClick={() => {
-              setActiveMenu('receipt');
-              setIsMobileMenuOpen(false);
+            className="flex flex-col items-center py-2"
+            style={{
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+              color: 'white'
             }}
           >
-            <Trophy className="w-5 h-5" />
-            <span className="text-xs font-medium">Sorteio</span>
+            <Trophy className="w-6 h-6 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7))' }} />
+            <span className="text-xs font-semibold" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>SORTEIO</span>
           </Link>
           
           <a
             href="https://www.laisebet.com/"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            className="flex flex-col items-center py-2"
+            style={{
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+              color: 'white'
+            }}
             onClick={() => {
               setActiveMenu('laise');
               setIsMobileMenuOpen(false);
             }}
           >
-            <Gamepad2 className="w-5 h-5" />
-            <span className="text-xs font-medium">LaiseBet</span>
+            <Gamepad2 className="w-6 h-6 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7))' }} />
+            <span className="text-xs font-semibold" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>LaiseBet</span>
           </a>
           
           <Link
             to="/roulette"
-            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            className="flex flex-col items-center py-2"
+            style={{
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+              color: 'white'
+            }}
             onClick={() => {
               setActiveMenu('roulette');
               setIsMobileMenuOpen(false);
             }}
           >
-            <Target className="w-5 h-5" />
-            <span className="text-xs font-medium">Raspadinha</span>
+            <div className="relative">
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+              <Gift className="w-6 h-6 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7))' }} />
+            </div>
+            <span className="text-xs font-semibold" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>Raspadinha</span>
           </Link>
           
           <Link
             to="/missions"
-            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            className="flex flex-col items-center py-2"
+            style={{
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+              color: 'white'
+            }}
             onClick={() => {
               setActiveMenu('missions');
               setIsMobileMenuOpen(false);
             }}
           >
-            <Zap className="w-5 h-5" />
-            <span className="text-xs font-medium">Missões</span>
+            <Target className="w-6 h-6 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7))' }} />
+            <span className="text-xs font-semibold" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>Missões</span>
           </Link>
           
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex flex-col items-center gap-1 px-2 py-1 text-white hover:text-blue-100 transition-colors"
+            className="flex flex-col items-center py-2"
+            style={{
+              textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+              color: 'white'
+            }}
           >
-            <Layout className="w-5 h-5" />
-            <span className="text-xs font-medium">Plataformas</span>
+            <Layout className="w-6 h-6 mb-1" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7))' }} />
+            <span className="text-xs font-semibold" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)' }}>Plataformas</span>
           </button>
         </div>
       </div>

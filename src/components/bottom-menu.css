@@ -1,14 +1,16 @@
 /* Estilos modernos para o menu inferior */
 .bottom-nav {
-  background: linear-gradient(to right, #4338ca, #3b82f6);
+  background: linear-gradient(to right, #1e40af, #1d4ed8); /* Cores muito mais escuras para maior contraste */
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   padding: 10px 0 8px;
-  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.6); /* Sombra bem mais escura */
+  opacity: 1; /* Totalmente opaco */
 }
 
 .bottom-nav-dark {
   background: linear-gradient(to right, #1e3a8a, #2563eb);
+  opacity: 1; /* Manter opacidade total no modo escuro */
 }
 
 /* Estilização para os itens do menu inferior */
@@ -20,7 +22,7 @@
 .bottom-nav svg {
   width: 24px !important;
   height: 24px !important;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7)); /* Sombra muito mais escura nos ícones */
   transition: all 0.3s ease;
   margin-bottom: 6px;
   color: white !important;
@@ -39,7 +41,7 @@
   font-size: 0.8rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.03em;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 5px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 5px rgba(0, 0, 0, 0.5); /* Sombra de texto muito mais escura */
   color: white !important;
   padding: 2px 0;
 }
