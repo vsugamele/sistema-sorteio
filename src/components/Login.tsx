@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { supabase, clearSession } from '../lib/supabase';
+import { supabase, clearSession, requestPasswordReset } from '../lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 
@@ -65,12 +65,11 @@ export function Login() {
     setError(null);
     
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resetPasswordEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
+      // Usar a nova função de recuperação de senha
+      const { success, message } = await requestPasswordReset(resetPasswordEmail);
       
-      if (error) {
-        throw error;
+      if (!success) {
+        throw new Error(message);
       }
       
       setResetPasswordSuccess(true);

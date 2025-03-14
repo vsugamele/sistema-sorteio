@@ -10,6 +10,7 @@ import Roulette from './components/Roulette';
 import { PointsProvider } from './contexts/PointsContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AccessDenied } from './components/AccessDenied';
+import { ResetPassword } from './components/ResetPassword';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<SignUp />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/acesso-negado" element={<AccessDenied />} />
           
           <Route path="/receipt" element={

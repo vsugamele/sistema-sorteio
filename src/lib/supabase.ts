@@ -264,6 +264,40 @@ export async function checkUserPermissions(requiredPermission: string): Promise<
   return true; // Sempre permitir acesso
 }
 
+// Função para recuperação de senha
+export async function requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+  try {
+    if (!email || !email.includes('@')) {
+      return { success: false, message: 'Por favor, forneça um email válido' };
+    }
+
+    console.log(`Enviando email de recuperação de senha para: ${email}`);
+    
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    
+    if (error) {
+      console.error('Erro ao enviar email de recuperação:', error);
+      return { 
+        success: false, 
+        message: `Erro ao enviar email de recuperação: ${error.message}` 
+      };
+    }
+    
+    return { 
+      success: true, 
+      message: 'Email de recuperação enviado com sucesso. Verifique sua caixa de entrada.' 
+    };
+  } catch (error: any) {
+    console.error('Erro inesperado ao solicitar recuperação de senha:', error);
+    return { 
+      success: false, 
+      message: `Erro inesperado: ${error.message || error}` 
+    };
+  }
+}
+
 // Função para atualizar missões como administrador
 export async function updateMissionAsAdmin(missionId: string, status: string): Promise<boolean> {
   try {
