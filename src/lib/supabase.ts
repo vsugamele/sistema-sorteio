@@ -273,8 +273,11 @@ export async function requestPasswordReset(email: string): Promise<{ success: bo
 
     console.log(`Enviando email de recuperação de senha para: ${email}`);
     
+    // URL base do site em produção
+    const siteUrl = import.meta.env.VITE_SITE_URL || 'https://sorteios-laise.vercel.app';
+    
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${siteUrl}/reset-password`,
     });
     
     if (error) {
