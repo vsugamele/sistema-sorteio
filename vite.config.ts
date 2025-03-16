@@ -17,5 +17,18 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
       },
     },
-  }
+    // Garantir que o Vite gere os assets corretamente para SPAs
+    assetsInlineLimit: 4096,
+    sourcemap: true,
+    // Copiar arquivos estáticos para a pasta de build
+    copyPublicDir: true
+  },
+  // Configuração para lidar com rotas SPA
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+    },
+  },
+  // Configuração para o histórico de navegação HTML5
+  base: '/'
 });
