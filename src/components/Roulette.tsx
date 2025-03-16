@@ -314,7 +314,7 @@ export default function Roulette() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 py-4">
       {/* Overlay de bloqueio quando não há pontos suficientes */}
       {showModal && error && points.approved < 50 && (
         <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10 p-4">
@@ -354,7 +354,7 @@ export default function Roulette() {
         </button>
       </div> */}
 
-      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 relative overflow-hidden flex flex-col items-center justify-center p-4 pb-28 md:pb-8">
+      <div className="w-full max-w-2xl mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl p-6 relative overflow-hidden">
       {/* Modal de Confirmação para Sair */}
       {showConfirmation && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]">
@@ -406,10 +406,10 @@ export default function Roulette() {
           <div className="flex items-center justify-between mb-4">
             <button 
               onClick={() => navigate('/')} 
-              className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800"
             >
               <ArrowLeft className="w-5 h-5 mr-1" />
-              <span className="text-sm">Voltar</span>
+              <span className="text-sm font-medium">Voltar</span>
             </button>
             <div className="flex-1"></div>
           </div>
@@ -619,6 +619,6 @@ export default function Roulette() {
         </div>
       )}
       </div>
-    </>
+    </div>
   );
 }
