@@ -79,8 +79,8 @@ function AdminPanel() {
   const [selectedDeposit, setSelectedDeposit] = useState<Deposit | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const [showImageModal, setShowImageModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [newAdminEmail, setNewAdminEmail] = useState('');
@@ -453,22 +453,6 @@ function AdminPanel() {
     } catch (error) {
       console.error('Erro ao marcar prêmio como resgatado:', error);
     }
-  };
-
-  const handleImageRetry = () => {
-    setImageError(false);
-    if (selectedImage) {
-      fetch(selectedImage, { method: 'HEAD' })
-        .then(response => {
-          if (!response.ok) throw new Error('Image not found');
-          setImageError(false);
-        })
-        .catch(() => setImageError(true));
-    }
-  };
-
-  const handleImageError = () => {
-    setImageError(true);
   };
 
   const handleAddAdmin = async (e: React.FormEvent) => {
@@ -929,6 +913,84 @@ function AdminPanel() {
     setShowMissionModal(true);
   };
 
+  const openImageModal = (imageUrl: string | null | undefined) => {
+    if (!imageUrl) return;
+    
+    console.log('Tentando abrir imagem:', imageUrl);
+    
+    // Verificar se a URL é do Supabase Storage
+    if (imageUrl.includes('supabase.co/storage')) {
+      // Para URLs do Supabase, obter a URL pública
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+      const bucketName = 'receipts';
+      
+      // Extrair o nome do arquivo da URL
+      const urlParts = imageUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      
+      if (fileName) {
+        // Construir uma URL pública direta para o arquivo
+        const publicUrl = `${supabaseUrl}/storage/v1/object/public/${bucketName}/${fileName}`;
+        console.log('URL pública construída:', publicUrl);
+        
+        // Adicionar timestamp para evitar cache
+        const timestampedUrl = `${publicUrl}?t=${Date.now()}`;
+        
+        setSelectedImage(timestampedUrl);
+        setImageError(false);
+        setShowImageModal(true);
+      } else {
+        console.error('Não foi possível extrair o nome do arquivo da URL:', imageUrl);
+        setSelectedImage('/placeholder-receipt.png');
+        setImageError(false);
+        setShowImageModal(true);
+      }
+    } else if (imageUrl.startsWith('data:')) {
+      // Para imagens base64, exibir diretamente
+      setSelectedImage(imageUrl);
+      setImageError(false);
+      setShowImageModal(true);
+      console.log('Exibindo imagem base64');
+    } else {
+      // Para outras URLs, tentar carregar normalmente
+      setSelectedImage(imageUrl);
+      setImageError(false);
+      setShowImageModal(true);
+    }
+  };
+
+  const ImageWithFallback = ({ src, alt = 'Imagem', className = '' }: { src: string, alt?: string, className?: string }) => {
+    const [error, setError] = useState(false);
+    
+    if (!src) return <div className="text-center p-4">Nenhuma imagem disponível</div>;
+    
+    if (error) {
+      return (
+        <div className="text-center p-4">
+          <div className="text-danger mb-2">
+            <i className="bi bi-exclamation-circle-fill"></i>
+          </div>
+          <p>Erro ao carregar a imagem.</p>
+          <button 
+            className="btn btn-sm btn-outline-primary"
+            onClick={() => setError(false)}
+          >
+            Tentar novamente
+          </button>
+        </div>
+      );
+    }
+    
+    return (
+      <img 
+        src={src} 
+        alt={alt} 
+        className={className}
+        onError={() => setError(true)}
+      />
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -1179,8 +1241,7 @@ function AdminPanel() {
                           <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
                             <button
                               onClick={() => {
-                                setSelectedImage(deposit.receipt_url || null);
-                                setShowImageModal(true);
+                                openImageModal(deposit.receipt_url || null);
                               }}
                               className={`text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 p-2 ${!deposit.receipt_url ? 'opacity-50 cursor-not-allowed' : ''}`}
                               disabled={!deposit.receipt_url}
@@ -1362,8 +1423,7 @@ function AdminPanel() {
                                       onClick={() => {
                                         // Visualizar detalhes da missão e abrir o modal com a imagem
                                         if (mission.proof_url) {
-                                          setSelectedImage(mission.proof_url);
-                                          setShowImageModal(true);
+                                          openImageModal(mission.proof_url);
                                           setImageError(false);
                                         } else {
                                           alert(`Detalhes da missão:\n\nUsuário: ${mission.users?.raw_user_meta_data?.name || mission.user_id}\nMissão: ${mission.missions?.title || mission.mission_id}\nStatus: ${mission.status}\nData: ${new Date(mission.created_at).toLocaleString('pt-BR')}\nProva: Não fornecida`);
@@ -1605,7 +1665,7 @@ function AdminPanel() {
               </h3>
               <button
                 onClick={() => setShowImageModal(false)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -1619,7 +1679,7 @@ function AdminPanel() {
                     Erro ao carregar a imagem. O arquivo pode não existir ou não ser uma imagem válida.
                   </p>
                   <button
-                    onClick={handleImageRetry}
+                    onClick={() => setImageError(false)}
                     className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                   >
                     Tentar novamente
@@ -1627,11 +1687,10 @@ function AdminPanel() {
                 </div>
               ) : (
                 <div className="flex items-center justify-center min-h-full">
-                  <img
-                    src={selectedImage}
-                    alt="Comprovante"
+                  <ImageWithFallback 
+                    src={selectedImage || ''} 
+                    alt="Comprovante" 
                     className="max-w-full object-contain"
-                    onError={handleImageError}
                   />
                 </div>
               )}
